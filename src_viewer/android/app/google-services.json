@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "852943148953",
+    "project_id": "src-management-c08fe",
+    "storage_bucket": "src-management-c08fe.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:852943148953:android:177da45c8ccf3043992508",
+        "android_client_info": {
+          "package_name": "victor.tran.phan.src_viewer"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBbi4xTMM_xc-zkwvzH_WtkdhvdM3Vlz2k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
