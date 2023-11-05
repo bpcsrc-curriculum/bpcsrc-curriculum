@@ -82,8 +82,48 @@ List<String> fieldsToShowInTableForPublishing = [
 ];
 
 List<String> fieldsToUseAsFilters = [
-  "All",
   "Course Level",
   "CS Topics",
   "Learning Objectives"
+];
+
+List<String> courseLevelOptions = [
+  "None",
+  "CS0",
+  "CS1",
+  "CS2"
+];
+
+List<String> csTopicOptions = [
+  "None",
+  "Variables",
+  "Data Types",
+  "Control Structures",
+  "Loops",
+  "Functions",
+  "Arrays",
+  "Objects",
+  "Strings",
+  "Implementing Classes",
+  "Inheritance",
+  "Interfaces",
+  "File I/O",
+  "Lists",
+  "Dictionaries",
+  "Stacks",
+  "Queues",
+  "Trees",
+  "Algorithmic Analysis",
+  "Recursion"
+];
+
+List<String> learningObjectiveOptions = [
+  "None",
+  "L1",
+  "L2",
+  "L3",
+  "L4",
+  "L5",
+  "L6",
+  "L7"
 ];

@@ -1,6 +1,6 @@
-import 'package:anim_search_app_bar/anim_search_app_bar.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:expandable/expandable.dart';
 import 'package:floating_action_bubble/floating_action_bubble.dart';
 import 'package:flutter/material.dart';
 import 'dart:html' as html;
@@ -21,14 +21,78 @@ class DisplayPage extends StatefulWidget {
 }
 
 class _DisplayPageState extends State<DisplayPage> with SingleTickerProviderStateMixin implements IRefresh{
-  String dropdownValue = fieldsToUseAsFilters.first;
-  TextEditingController filterQuery = TextEditingController();
+  Map<String, String> filterSelections = Map<String, String>();
+  TextEditingController searchBar = TextEditingController();
   var _animation;
   var _animationController;
   final db = FirebaseFirestore.instance;
 
   Future<List<QueryDocumentSnapshot<Map<String, dynamic>>>?> fetchSubmissions() async {
     return (await db.collection("submissions").where("Approved", isEqualTo: "APPROVED").get()).docs;
+  }
+
+  Widget createDropDownFromList(List<String> options, String fieldName) {
+    setState(() {
+      filterSelections.putIfAbsent(fieldName, () => options.first);
+    });
+    return Padding(
+      padding: const EdgeInsets.only(left: 15.0, top: 8.0),
+      child: Row(
+        children: [
+          Text(
+            fieldName,
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.bold
+            ),
+          ),
+          SizedBox(width: 15,),
+          Container(
+            decoration: BoxDecoration(
+                color: Theme.of(context).highlightColor,
+                borderRadius: BorderRadius.circular(10)
+            ),
+            child: DropdownButton(
+                value: filterSelections[fieldName],
+                icon: const Icon(Icons.arrow_downward),
+                elevation: 16,
+                items: options.map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(value),
+                    ),
+                  );
+                }).toList(),
+                onChanged: (String? value) {
+                  setState(() {
+                    filterSelections[fieldName] = value!;
+                    print(filterSelections.values);
+                  });
+                }
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String getFiltersAsString() {
+    bool noneSelected = true;
+    int amountAdded = 0;
+    String output = "";
+    for (String s in filterSelections.values) {
+      if (s != "None") {
+        noneSelected = false;
+        if (amountAdded >= 1) {
+          output += ", ";
+        }
+        output += s;
+        amountAdded++;
+      }
+    }
+    return noneSelected? "No filters selected." : output;
   }
 
   @override
@@ -69,55 +133,85 @@ class _DisplayPageState extends State<DisplayPage> with SingleTickerProviderStat
         return true;
       },
       child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Theme.of(context).primaryColor,
+          title: const Text(
+            "Socially Responsible Curriculum Viewer",
+            style: TextStyle(
+                color: Colors.white
+            ),
+          ),
+        ),
         body: Column(
           children: [
-            AnimSearchAppBar(
-              cancelButtonText: "Cancel",
-              hintText: 'Search for a specific assignment with a keyword',
-              cSearch: filterQuery,
-              onChanged: (String entry) {
-                setState(() {
-
-                });
-              },
-              appBar: AppBar(
-                backgroundColor: Theme.of(context).primaryColor,
-                title: Row(
+            Container(
+              color: Theme.of(context).primaryColor,
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 8.0),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      "Socially Responsible Curriculum Viewer",
-                      style: TextStyle(
-                          color: Colors.white
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 15.0, top: 8.0),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10)
-                        ),
-                        child: DropdownButton(
-                          value: dropdownValue,
-                          icon: const Icon(Icons.arrow_downward),
-                          elevation: 16,
-                          items: fieldsToUseAsFilters.map<DropdownMenuItem<String>>((String value) {
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Text(value),
+                    Expanded(
+                      flex: 25,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.all(Radius.circular(15)),
+                          ),
+                          child: ExpandablePanel(
+                            header: const Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Text(
+                                "Filters",
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold
+                                ),
                               ),
-                            );
-                          }).toList(),
-                          onChanged: (String? value) {
-                            setState(() {
-                              dropdownValue = value!;
-                            });
-                          }
+                            ),
+                            collapsed: Padding(
+                              padding: const EdgeInsets.only(bottom: 8.0, left: 8.0),
+                              child: Text(getFiltersAsString()),
+                            ),
+                            expanded: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                createDropDownFromList(courseLevelOptions, "Course Level"),
+                                createDropDownFromList(csTopicOptions, "CS Topics"),
+                                createDropDownFromList(learningObjectiveOptions, "Learning Suggestions"),
+                              ],
+                            ),
+                          ),
+                        ),
+                      )
+                    ),
+                    Expanded(
+                      flex: 75,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(15)
+                          ),
+                          child: TextField(
+                            decoration: const InputDecoration(
+                              border: InputBorder.none,
+                              icon: Icon(Icons.search),
+                              hintText: "Search for specific keywords"
+                            ),
+                            controller: searchBar,
+                            onChanged: (String value) {
+                              setState(() {
+
+                              });
+                            },
+                          ),
                         ),
                       ),
-                    ),
+                    )
                   ],
                 ),
               ),
@@ -144,7 +238,9 @@ class _DisplayPageState extends State<DisplayPage> with SingleTickerProviderStat
                           LessonEntry entry = LessonEntry.fromMap(submissions[index].data());
 
                           //can we perform an actual filter?
-                          if (filterQuery.text.isNotEmpty && !entry.matchesQuery(filterQuery.text, dropdownValue)) {
+                          bool searchBarMatch = entry.queryAll(searchBar.text);
+                          bool filterMatch = entry.queryFieldMap(filterSelections);
+                          if (!searchBarMatch || !filterMatch) {
                             return const SizedBox.shrink();
                           }
                           else {

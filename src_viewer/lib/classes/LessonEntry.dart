@@ -9,16 +9,29 @@ class LessonEntry {
     //nothing happens here
   }
 
-  bool matchesQuery(String query, String field) {
-    if (field == "All") {
-      String combined = "";
-      for (SubmissionField sF in fields.values) {
-        combined += sF.value;
-      }
-      return combined.toLowerCase().contains(query.toLowerCase());
-    } else {
-      return getSubmissionField(field).value.toLowerCase().contains(query.toLowerCase());
+  bool queryAll(String query) {
+    String combined = "";
+    for (SubmissionField sF in fields.values) {
+      combined += sF.value;
     }
+    return combined.toLowerCase().contains(query.toLowerCase());
+  }
+
+  bool queryFieldMap(Map<String, String> fieldMap) {
+    for (String field in fieldMap.keys) {
+      if (fieldMap[field] == "None") {
+        continue;
+      }
+      if (!queryField(fieldMap[field]!, field)) {
+        print("Not found");
+        return false;
+      }
+    }
+    return true;
+  }
+
+  bool queryField(String query, String field) {
+    return getSubmissionField(field).value.toLowerCase().contains(query.toLowerCase());
   }
   
   SubmissionField getSubmissionField(String field) {
