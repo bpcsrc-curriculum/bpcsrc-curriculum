@@ -1,8 +1,6 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
-import 'package:just_the_tooltip/just_the_tooltip.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:src_viewer/classes/RefreshNotifier.dart';
 import 'package:src_viewer/widgets/LessonApprovalWidget.dart';
@@ -41,46 +39,43 @@ class _PublishingPageState extends State<PublishingPage> implements IRefresh{
     setState(() {
       filterSelections.putIfAbsent(fieldName, () => options.first);
     });
-    return Padding(
-      padding: const EdgeInsets.only(left: 15.0, top: 8.0),
-      child: Row(
-        children: [
-          Text(
-            fieldName,
-            style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.bold
-            ),
+    return Row(
+      children: [
+        Text(
+          fieldName,
+          style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.bold
           ),
-          SizedBox(width: 15,),
-          Container(
-            decoration: BoxDecoration(
-                color: Theme.of(context).highlightColor,
-                borderRadius: BorderRadius.circular(10)
-            ),
-            child: DropdownButton(
-                value: filterSelections[fieldName],
-                icon: const Icon(Icons.arrow_downward),
-                elevation: 16,
-                items: options.map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(value),
-                    ),
-                  );
-                }).toList(),
-                onChanged: (String? value) {
-                  setState(() {
-                    filterSelections[fieldName] = value!;
-                    print(filterSelections.values);
-                  });
-                }
-            ),
+        ),
+        SizedBox(width: 15,),
+        Container(
+          decoration: BoxDecoration(
+              color: Theme.of(context).highlightColor,
+              borderRadius: BorderRadius.circular(10)
           ),
-        ],
-      ),
+          child: DropdownButton(
+              value: filterSelections[fieldName],
+              icon: const Icon(Icons.arrow_downward),
+              elevation: 16,
+              items: options.map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(value),
+                  ),
+                );
+              }).toList(),
+              onChanged: (String? value) {
+                setState(() {
+                  filterSelections[fieldName] = value!;
+                  print(filterSelections.values);
+                });
+              }
+          ),
+        ),
+      ],
     );
   }
 
@@ -153,71 +148,82 @@ class _PublishingPageState extends State<PublishingPage> implements IRefresh{
             Container(
               color: Theme.of(context).primaryColor,
               child: Padding(
-                padding: const EdgeInsets.only(bottom: 8.0),
-                child: Row(
+                padding: const EdgeInsets.only(bottom: 4.0),
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                        flex: 25,
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.all(Radius.circular(15)),
-                            ),
-                            child: ExpandablePanel(
-                              header: const Padding(
-                                padding: EdgeInsets.all(8.0),
-                                child: Text(
-                                  "Filters",
-                                  style: TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold
-                                  ),
-                                ),
-                              ),
-                              collapsed: Padding(
-                                padding: const EdgeInsets.only(bottom: 8.0, left: 8.0),
-                                child: Text(getFiltersAsString()),
-                              ),
-                              expanded: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  createDropDownFromList(courseLevelOptions, "Course Level"),
-                                  createDropDownFromList(csTopicOptions, "CS Topics"),
-                                  createDropDownFromList(learningObjectiveOptions, "Learning Suggestions"),
-                                ],
-                              ),
-                            ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Container(
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(15)
+                        ),
+                        child: TextField(
+                          decoration: const InputDecoration(
+                              border: InputBorder.none,
+                              icon: Icon(Icons.search),
+                              hintText: "Search for specific keywords"
                           ),
-                        )
-                    ),
-                    Expanded(
-                      flex: 75,
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Container(
-                          decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(15)
-                          ),
-                          child: TextField(
-                            decoration: const InputDecoration(
-                                border: InputBorder.none,
-                                icon: Icon(Icons.search),
-                                hintText: "Search for specific keywords"
-                            ),
-                            controller: searchBar,
-                            onChanged: (String value) {
-                              setState(() {
+                          controller: searchBar,
+                          onChanged: (String value) {
+                            setState(() {
 
-                              });
-                            },
-                          ),
+                            });
+                          },
                         ),
                       ),
-                    )
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(15),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: createDropDownFromList(courseLevelOptions, "Course Level"),
+                                ),
+                              ),
+                            )
+                        ),
+                        Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(15)
+                                ),
+                                child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: createDropDownFromList(csTopicOptions, "CS Topics")
+                                ),
+                              ),
+                            )
+                        ),
+                        Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(15)
+                                ),
+                                child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: createDropDownFromList(learningObjectiveOptions, "Learning Suggestions")
+                                ),
+                              ),
+                            )
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               ),
