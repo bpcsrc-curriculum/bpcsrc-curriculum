@@ -22,7 +22,6 @@ class _PublishingPageState extends State<PublishingPage> implements IRefresh{
   var _animation;
   var _animationController;
   final db = FirebaseFirestore.instance;
-  bool showUnpublishedSubmissions = true;
 
   Future<List<QueryDocumentSnapshot<Map<String, dynamic>>>?> fetchSubmissions() async {
     Query<Map<String, dynamic>> initialQuery = db.collection("submissions");
@@ -107,13 +106,6 @@ class _PublishingPageState extends State<PublishingPage> implements IRefresh{
     print("refreshing publishing page");
     setState(() {
 
-    });
-  }
-
-  void toggleUnpublishedSubmissions() {
-    setState(() {
-      showUnpublishedSubmissions = !showUnpublishedSubmissions;
-      print("toggling to " + showUnpublishedSubmissions.toString());
     });
   }
 
@@ -222,28 +214,6 @@ class _PublishingPageState extends State<PublishingPage> implements IRefresh{
                               ),
                             )
                         ),
-                        Expanded(
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(15)
-                                ),
-                                child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: ElevatedButton(
-                                      child: Text(showUnpublishedSubmissions? "Hide Unpublished": "Show Unpublished"),
-                                      onPressed: () {
-                                        setState(() {
-                                          showUnpublishedSubmissions = !showUnpublishedSubmissions;
-                                        });
-                                      },
-                                    ),
-                                ),
-                              ),
-                            )
-                        ),
                       ],
                     ),
                   ],
@@ -270,10 +240,6 @@ class _PublishingPageState extends State<PublishingPage> implements IRefresh{
                         itemCount: submissions.length,
                         itemBuilder: (BuildContext context, int index) {
                           LessonEntry entry = LessonEntry.fromMap(submissions[index].data());
-
-                          if (showUnpublishedSubmissions && entry.getSubmissionField("Approved").value != "APPROVED") {
-                            return const SizedBox.shrink();
-                          }
 
                           //can we perform an actual filter?
                           bool searchBarMatch = entry.queryAll(searchBar.text);
