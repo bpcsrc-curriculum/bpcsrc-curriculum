@@ -222,6 +222,28 @@ class _PublishingPageState extends State<PublishingPage> implements IRefresh{
                               ),
                             )
                         ),
+                        Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(15)
+                                ),
+                                child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: ElevatedButton(
+                                      child: Text(showUnpublishedSubmissions? "Hide Unpublished": "Show Unpublished"),
+                                      onPressed: () {
+                                        setState(() {
+                                          showUnpublishedSubmissions = !showUnpublishedSubmissions;
+                                        });
+                                      },
+                                    ),
+                                ),
+                              ),
+                            )
+                        ),
                       ],
                     ),
                   ],
