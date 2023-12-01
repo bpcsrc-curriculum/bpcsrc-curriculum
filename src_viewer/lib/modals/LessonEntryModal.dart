@@ -76,12 +76,20 @@ class LessonEntryModal extends StatelessWidget {
       case "Student Samples":
       case "Instructor's Guide":
       case "File URL":
-        return ElevatedButton(
-            onPressed: () {
-              String url = value;
-              html.window.open(url, field);
-            },
-            child: Text("View Here")
+        List<String> URLs = value.split(",");
+        List<Widget> downloadButtons = [];
+        for (int i = 0; i < URLs.length; i++) {
+          downloadButtons.add(
+            ElevatedButton(
+                onPressed: () {
+                  html.window.open(URLs[i], field);
+                },
+                child: Text("View Link ${i+1}")
+            )
+          );
+        }
+        return Column(
+          children: downloadButtons,
         );
       default:
         return Text(value);

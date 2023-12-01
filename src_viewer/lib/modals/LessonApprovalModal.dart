@@ -15,27 +15,6 @@ class LessonApprovalModal extends LessonEntryModal {
   LessonApprovalModal({super.key, required super.entry, required this.docRef});
 
   List<String> info = fieldsToShowInTableForPublishing;
-
-  @override
-  Widget determineWidget(String field, String value){
-    if (value.isEmpty) {
-      return Text("No data provided.");
-    }
-    switch (field) {
-      case "Student Samples":
-      case "Instructor's Guide":
-      case "File URL":
-        return ElevatedButton(
-            onPressed: () {
-              String url = value;
-              html.window.open(url, field);
-            },
-            child: Text("View Here")
-        );
-      default:
-        return Text(value);
-    }
-  }
 }
 
 dynamic createLessonApprovalModal(LessonEntry entry, DocumentReference docRef, BuildContext context) {

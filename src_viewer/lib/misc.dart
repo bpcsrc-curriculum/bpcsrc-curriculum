@@ -88,14 +88,14 @@ List<String> fieldsToUseAsFilters = [
 ];
 
 List<String> courseLevelOptions = [
-  "None",
+  "All",
   "CS0",
   "CS1",
   "CS2"
 ];
 
 List<String> csTopicOptions = [
-  "None",
+  "All",
   "Variables",
   "Data Types",
   "Control Structures",
@@ -118,7 +118,7 @@ List<String> csTopicOptions = [
 ];
 
 List<String> learningObjectiveOptions = [
-  "None",
+  "All",
   "L1",
   "L2",
   "L3",

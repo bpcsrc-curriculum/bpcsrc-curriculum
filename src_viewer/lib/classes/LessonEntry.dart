@@ -19,7 +19,7 @@ class LessonEntry {
 
   bool queryFieldMap(Map<String, String> fieldMap) {
     for (String field in fieldMap.keys) {
-      if (fieldMap[field] == "None") {
+      if (fieldMap[field] == "All") {
         continue;
       }
       if (!queryField(fieldMap[field]!, field)) {

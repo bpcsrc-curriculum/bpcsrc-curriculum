@@ -79,7 +79,7 @@ class _DisplayPageState extends State<DisplayPage> with SingleTickerProviderStat
     int amountAdded = 0;
     String output = "";
     for (String s in filterSelections.values) {
-      if (s != "None") {
+      if (s != "All") {
         noneSelected = false;
         if (amountAdded >= 1) {
           output += ", ";
@@ -212,7 +212,7 @@ class _DisplayPageState extends State<DisplayPage> with SingleTickerProviderStat
                                 ),
                                 child: Padding(
                                   padding: const EdgeInsets.all(8.0),
-                                  child: createDropDownFromList(learningObjectiveOptions, "Learning Suggestions")
+                                  child: createDropDownFromList(learningObjectiveOptions, "Learning Objectives")
                                 ),
                               ),
                             )

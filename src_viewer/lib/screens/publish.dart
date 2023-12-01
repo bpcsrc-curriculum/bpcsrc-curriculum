@@ -83,7 +83,7 @@ class _PublishingPageState extends State<PublishingPage> implements IRefresh{
     int amountAdded = 0;
     String output = "";
     for (String s in filterSelections.values) {
-      if (s != "None") {
+      if (s != "All") {
         noneSelected = false;
         if (amountAdded >= 1) {
           output += ", ";
