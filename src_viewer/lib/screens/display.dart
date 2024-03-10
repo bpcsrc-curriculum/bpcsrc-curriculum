@@ -252,12 +252,9 @@ class _DisplayPageState extends State<DisplayPage> with SingleTickerProviderStat
                           }
                           else {
                             currentDelay+=delayMilliSeconds;
-                            return FadeInLeft(
-                                delay: Duration(milliseconds: currentDelay),
-                                child: Padding(
-                                  padding: const EdgeInsets.only(top: 15, left: 15, right: 15),
-                                  child: LessonEntryWidget(entry: entry),
-                                )
+                            return Padding(
+                              padding: const EdgeInsets.only(top: 15, left: 15, right: 15),
+                              child: LessonEntryWidget(entry: entry),
                             );
                           }
                         },
