@@ -49,9 +49,9 @@ class LessonApprovalWidget extends LessonEntryWidget {
                   child: getFadeInDelayWidget(
                     delayMilliSeconds,
                     JustTheTooltip(
-                      backgroundColor: Color(0xFF333333),
+                      backgroundColor: const Color(0xFF333333),
                       content: Padding(
-                        padding: EdgeInsets.all(8.0),
+                        padding: const EdgeInsets.all(8.0),
                         child: Text(
                           entry.getSubmissionField("Activity").value,
                           style: const TextStyle(
@@ -78,9 +78,9 @@ class LessonApprovalWidget extends LessonEntryWidget {
                   child: getFadeInDelayWidget(
                     delayMilliSeconds,
                     JustTheTooltip(
-                      backgroundColor: Color(0xFF333333),
+                      backgroundColor: const Color(0xFF333333),
                       content: Padding(
-                        padding: EdgeInsets.all(8.0),
+                        padding: const EdgeInsets.all(8.0),
                         child: Text(
                           entry.getSubmissionField("Contributor").value,
                           style: const TextStyle(
@@ -103,9 +103,9 @@ class LessonApprovalWidget extends LessonEntryWidget {
                   child: getFadeInDelayWidget(
                     delayMilliSeconds,
                     JustTheTooltip(
-                      backgroundColor: Color(0xFF333333),
+                      backgroundColor: const Color(0xFF333333),
                       content: Padding(
-                        padding: EdgeInsets.all(8.0),
+                        padding: const EdgeInsets.all(8.0),
                         child: Text(
                           entry.getSubmissionField("Contributor Email").value,
                           style: const TextStyle(
@@ -128,9 +128,9 @@ class LessonApprovalWidget extends LessonEntryWidget {
                   child: getFadeInDelayWidget(
                     delayMilliSeconds,
                     JustTheTooltip(
-                      backgroundColor: Color(0xFF333333),
+                      backgroundColor: const Color(0xFF333333),
                       content: Padding(
-                        padding: EdgeInsets.all(8.0),
+                        padding: const EdgeInsets.all(8.0),
                         child: Text(
                           formattedDate,
                           style: const TextStyle(

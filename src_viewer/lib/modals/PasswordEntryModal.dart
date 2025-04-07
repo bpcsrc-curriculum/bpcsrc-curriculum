@@ -45,7 +45,7 @@ class _PasswordEntryModalState extends State<PasswordEntryModal> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Container(
+                SizedBox(
                   width: 400,
                   child: TextField(
                     controller: widget.password,

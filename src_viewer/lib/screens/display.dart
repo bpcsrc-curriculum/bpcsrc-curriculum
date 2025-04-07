@@ -1,4 +1,3 @@
-import 'package:animate_do/animate_do.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:floating_action_bubble/floating_action_bubble.dart';
 import 'package:flutter/material.dart';
@@ -20,7 +19,7 @@ class DisplayPage extends StatefulWidget {
 }
 
 class _DisplayPageState extends State<DisplayPage> with SingleTickerProviderStateMixin implements IRefresh{
-  Map<String, String> filterSelections = Map<String, String>();
+  Map<String, String> filterSelections = <String, String>{};
   TextEditingController searchBar = TextEditingController();
   var _animation;
   var _animationController;
@@ -30,6 +29,49 @@ class _DisplayPageState extends State<DisplayPage> with SingleTickerProviderStat
     return (await db.collection("submissions").where("Approved", isEqualTo: "APPROVED").get()).docs;
   }
 
+  // Widget createDropDownFromList(List<String> options, String fieldName) {
+  //   setState(() {
+  //     filterSelections.putIfAbsent(fieldName, () => options.first);
+  //   });
+  //   return Row(
+  //     children: [
+  //       Text(
+  //         fieldName,
+  //         style: const TextStyle(
+  //           fontSize: 15,
+  //           fontWeight: FontWeight.bold
+  //         ),
+  //       ),
+  //       const SizedBox(width: 15,),
+  //       Container(
+  //         decoration: BoxDecoration(
+  //             color: Theme.of(context).highlightColor,
+  //             borderRadius: BorderRadius.circular(10)
+  //         ),
+  //         child: DropdownButton(
+  //             value: filterSelections[fieldName],
+  //             icon: const Icon(Icons.arrow_downward),
+  //             elevation: 16,
+  //             items: options.map<DropdownMenuItem<String>>((String value) {
+  //               return DropdownMenuItem<String>(
+  //                 value: value,
+  //                 child: Padding(
+  //                   padding: const EdgeInsets.all(8.0),
+  //                   child: Text(value),
+  //                 ),
+  //               );
+  //             }).toList(),
+  //             onChanged: (String? value) {
+  //               setState(() {
+  //                 filterSelections[fieldName] = value!;
+  //                 print(filterSelections.values);
+  //               });
+  //             }
+  //         ),
+  //       ),
+  //     ],
+  //   );
+  // }
   Widget createDropDownFromList(List<String> options, String fieldName) {
     setState(() {
       filterSelections.putIfAbsent(fieldName, () => options.first);
@@ -38,36 +80,43 @@ class _DisplayPageState extends State<DisplayPage> with SingleTickerProviderStat
       children: [
         Text(
           fieldName,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 15,
-            fontWeight: FontWeight.bold
+            fontWeight: FontWeight.bold,
           ),
         ),
-        SizedBox(width: 15,),
-        Container(
-          decoration: BoxDecoration(
+        const SizedBox(width: 15),
+        Expanded(
+          child: Container(
+            decoration: BoxDecoration(
               color: Theme.of(context).highlightColor,
-              borderRadius: BorderRadius.circular(10)
-          ),
-          child: DropdownButton(
-              value: filterSelections[fieldName],
-              icon: const Icon(Icons.arrow_downward),
-              elevation: 16,
-              items: options.map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(value),
-                  ),
-                );
-              }).toList(),
-              onChanged: (String? value) {
-                setState(() {
-                  filterSelections[fieldName] = value!;
-                  print(filterSelections.values);
-                });
-              }
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<String>(
+                isExpanded: true,
+                value: filterSelections[fieldName],
+                icon: const Icon(Icons.arrow_downward),
+                elevation: 16,
+                items: options.map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(
+                        minWidth: 300, // Adjust this value to fit your needs.
+                      ),
+                      child: Text(value),
+                    ),
+                  );
+                }).toList(),
+                onChanged: (String? value) {
+                  setState(() {
+                    filterSelections[fieldName] = value!;
+                    print(filterSelections.values);
+                  });
+                },
+              ),
+            ),
           ),
         ),
       ],

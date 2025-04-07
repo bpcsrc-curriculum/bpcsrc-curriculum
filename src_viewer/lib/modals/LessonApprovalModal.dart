@@ -1,9 +1,7 @@
-import 'dart:convert';
 
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'dart:html' as html;
 import 'package:src_viewer/classes/LessonEntry.dart';
 import 'package:src_viewer/classes/RefreshNotifier.dart';
 
@@ -14,6 +12,7 @@ class LessonApprovalModal extends LessonEntryModal {
   var docRef;
   LessonApprovalModal({super.key, required super.entry, required this.docRef});
 
+  @override
   List<String> info = fieldsToShowInTableForPublishing;
 }
 
@@ -59,8 +58,8 @@ void showConfirmationMessage(BuildContext context, String operationName) {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                Text("${operationName} Confirmed!"),
-                Text("Your change has been successfully processed."),
+                Text("$operationName Confirmed!"),
+                const Text("Your change has been successfully processed."),
               ],
             ),
           ),
