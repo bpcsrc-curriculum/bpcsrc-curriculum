@@ -25,6 +25,7 @@ List<String> formFields = [
   "Has this assignment been used for a class before?"
 ];
 
+// Map of all key:value pairs in database, update with data as needed.
 Map<String, SubmissionField> generateFields(Map<String, dynamic> map) {
   return {
     "Approved": SubmissionField(value: map['Approved'], desc: "Whether or not this curriculum is approved to be viewed and downloaded."),
@@ -126,4 +127,28 @@ List<String> learningObjectiveOptions = [
   "L5",
   "L6",
   "L7"
+];
+
+List<String> srcTopicsOptions = [
+  "All",
+  "Algorithmic bias and fairness",
+  "Algorithmic transparency and accountability",
+  "Healthcare",
+  "Environmental Science and Sustainability",
+  "Finance and Banking",
+  "Responsible AI",
+  "Education",
+  "Accessibility",
+  "Politics",
+  "Economics and Equity"
+];
+// Add below to a list on slides
+List<String> collaboratorOptions = [
+  "All",
+  "SFSU",
+  "CalStateLA",
+  "CPP",
+  "Cal Poly",
+  "CSUF",
+  "CSUDH"
 ];
