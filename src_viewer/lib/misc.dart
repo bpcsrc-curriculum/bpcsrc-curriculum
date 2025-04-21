@@ -22,11 +22,21 @@ List<String> formFields = [
   "Issues and solutions (Optional)",
   "References for instructor (Optional)",
   "File Submission",
-  "Has this assignment been used for a class before?"
+  "Has this assignment been used for a class before?",
+  "Contributor Campus"
 ];
 
 // Map of all key:value pairs in database, update with data as needed.
 Map<String, SubmissionField> generateFields(Map<String, dynamic> map) {
+
+  /*
+  for (var key in map.keys) {
+    print('"$key"');
+  }
+
+  print('Contributor Campus: ${map["Contributor Campus"]}');
+  */
+
   return {
     "Approved": SubmissionField(value: map['Approved'], desc: "Whether or not this curriculum is approved to be viewed and downloaded."),
     "Upload Date": SubmissionField(value: map['Timestamp'].toString(), desc: 'The time that this assignment was uploaded.'),
@@ -47,6 +57,12 @@ Map<String, SubmissionField> generateFields(Map<String, dynamic> map) {
     "References for Instructor": SubmissionField(value: map['References for instructor (Optional)'], desc: 'Any reference materials, readings, or answer keys that can help the instructor.'),
     "File URL": SubmissionField(value: map['File Submission'], desc: 'A link to a Google Drive document of the assignment for you to download.'),
     "Used Before": SubmissionField(value: map["Has this assignment been used for a class before?"], desc: "Has this assignment been used for a class before?"),
+    "Campus": SubmissionField(
+      // The check is here as some data that could be approved in the future-
+      // does not have a campus assigned
+      value: map['Contributor Campus']?.toString() ?? "N/A",
+      desc: 'The name of the contributor campus.',
+    ),
   };
 }
 
@@ -64,6 +80,7 @@ List<String> fieldsToShowInTable = [
   "File URL",
   "Student Samples",
   "Instructor's Guide",
+  "Campus",
 ];
 
 List<String> fieldsToShowInTableForPublishing = [
@@ -80,6 +97,7 @@ List<String> fieldsToShowInTableForPublishing = [
   "File URL",
   "Student Samples",
   "Instructor's Guide",
+  "Campus",
 ];
 
 List<String> fieldsToUseAsFilters = [
@@ -140,7 +158,8 @@ List<String> srcTopicsOptions = [
   "Education",
   "Accessibility",
   "Politics",
-  "Economics and Equity"
+  "Economics and Equity",
+  "Housing"
 ];
 // Add below to a list on slides
 List<String> collaboratorOptions = [
