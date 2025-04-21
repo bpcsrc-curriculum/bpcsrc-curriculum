@@ -217,7 +217,8 @@ class _DisplayPageState extends State<DisplayPage> with SingleTickerProviderStat
                                 ),
                                 child: Padding(
                                     padding: const EdgeInsets.all(8.0),
-                                    child: createDropDownFromList(srcTopicsOptions, "SRC Topics")
+                                    // this is a test, options can be repurposed, string is field in DB which has some overlap, merge these two ideas?
+                                    child: createDropDownFromList(srcTopicsOptions, "Domain/Societal Factor")
                                 ),
                               ),
                             )
@@ -247,7 +248,7 @@ class _DisplayPageState extends State<DisplayPage> with SingleTickerProviderStat
                                 ),
                                 child: Padding(
                                     padding: const EdgeInsets.all(8.0),
-                                    child: createDropDownFromList(collaboratorOptions, "Collaborators")
+                                    child: createDropDownFromList(collaboratorOptions, "Campus")
                                 ),
                               ),
                             )
