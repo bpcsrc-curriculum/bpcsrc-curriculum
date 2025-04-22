@@ -168,6 +168,6 @@ List<String> collaboratorOptions = [
   "CalStateLA",
   "CPP",
   "Cal Poly",
-  "CSUF",
+  "Fullerton",
   "CSUDH"
 ];
