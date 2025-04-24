@@ -7,6 +7,7 @@ import 'package:src_viewer/classes/LessonEntry.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:src_viewer/widgets/LessonEntryWidget.dart';
 import 'package:src_viewer/misc.dart';
+import 'package:multi_select_flutter/multi_select_flutter.dart';
 
 import '../classes/IRefresh.dart';
 import '../classes/RefreshNotifier.dart';
@@ -20,7 +21,8 @@ class DisplayPage extends StatefulWidget {
 }
 
 class _DisplayPageState extends State<DisplayPage> with SingleTickerProviderStateMixin implements IRefresh{
-  Map<String, String> filterSelections = Map<String, String>();
+  // Map<String, String> filterSelections = Map<String, String>();
+  Map<String, List<String>> filterSelections = {};
   TextEditingController searchBar = TextEditingController();
   var _animation;
   var _animationController;
@@ -29,66 +31,146 @@ class _DisplayPageState extends State<DisplayPage> with SingleTickerProviderStat
   Future<List<QueryDocumentSnapshot<Map<String, dynamic>>>?> fetchSubmissions() async {
     return (await db.collection("submissions").where("Approved", isEqualTo: "APPROVED").get()).docs;
   }
+  //
+  // Widget createDropDownFromList(List<String> options, String fieldName) {
+  //   setState(() {
+  //     // filterSelections.putIfAbsent(fieldName, () => options.first);
+  //     filterSelections.putIfAbsent(fieldName, () => <String>[]);
+  //   });
+  //   return Row(
+  //     children: [
+  //       Text(
+  //         fieldName,
+  //         style: TextStyle(
+  //           fontSize: 15,
+  //           fontWeight: FontWeight.bold
+  //         ),
+  //       ),
+  //       SizedBox(width: 15,),
+  //       Container(
+  //         decoration: BoxDecoration(
+  //             color: Theme.of(context).highlightColor,
+  //             borderRadius: BorderRadius.circular(10)
+  //         ),
+  //         child: DropdownButton(
+  //             value: filterSelections[fieldName],
+  //             icon: const Icon(Icons.arrow_downward),
+  //             elevation: 16,
+  //             items: options.map<DropdownMenuItem<String>>((String value) {
+  //               return DropdownMenuItem<String>(
+  //                 value: value,
+  //                 child: Padding(
+  //                   padding: const EdgeInsets.all(8.0),
+  //                   child: Text(value),
+  //                 ),
+  //               );
+  //             }).toList(),
+  //             onChanged: (String? value) {
+  //               setState(() {
+  //                 filterSelections[fieldName] = value!;
+  //                 print(filterSelections.values);
+  //               });
+  //             }
+  //         ),
+  //       ),
+  //     ],
+  //   );
+  // }
 
-  Widget createDropDownFromList(List<String> options, String fieldName) {
+  Widget createMultiSelectDropDownFromList(List<String> options, String fieldName) {
+    // Initialize the filter for this field as an empty list if not already set.
     setState(() {
-      filterSelections.putIfAbsent(fieldName, () => options.first);
+      filterSelections.putIfAbsent(fieldName, () => <String>[]);
     });
     return Row(
       children: [
         Text(
           fieldName,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 15,
-            fontWeight: FontWeight.bold
+            fontWeight: FontWeight.bold,
           ),
         ),
-        SizedBox(width: 15,),
-        Container(
-          decoration: BoxDecoration(
+        const SizedBox(width: 15),
+        // Using Expanded to allow the dropdown to take up available space.
+        Expanded(
+          child: Container(
+            decoration: BoxDecoration(
               color: Theme.of(context).highlightColor,
-              borderRadius: BorderRadius.circular(10)
-          ),
-          child: DropdownButton(
-              value: filterSelections[fieldName],
-              icon: const Icon(Icons.arrow_downward),
-              elevation: 16,
-              items: options.map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(value),
-                  ),
-                );
-              }).toList(),
-              onChanged: (String? value) {
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: MultiSelectDialogField<String>(
+              // Convert each option into a MultiSelectItem.
+              items: options
+                  .map((option) => MultiSelectItem<String>(option, option))
+                  .toList(),
+              title: Text(fieldName),
+              // Display selected options as a comma-separated string.
+              buttonText: Text(
+                filterSelections[fieldName]!.isEmpty
+                    ? 'Select $fieldName'
+                    : filterSelections[fieldName]!.join(', '),
+                overflow: TextOverflow.ellipsis,
+              ),
+              buttonIcon: const Icon(Icons.arrow_drop_down),
+              listType: MultiSelectListType.CHIP, // Use CHIP or LIST based on your preference.
+              onConfirm: (List<String> selectedValues) {
                 setState(() {
-                  filterSelections[fieldName] = value!;
-                  print(filterSelections.values);
+                  filterSelections[fieldName] = selectedValues;
+                  print('Selected for $fieldName: ${filterSelections[fieldName]}');
                 });
-              }
+              },
+              // Optional: Customize the dialog or chip display if desired.
+            ),
           ),
         ),
       ],
     );
   }
 
+
+  // String getFiltersAsString() {
+  //   bool noneSelected = true;
+  //   int amountAdded = 0;
+  //   String output = "";
+  //   for (String s in filterSelections.values) {
+  //     if (s != "All") {
+  //       noneSelected = false;
+  //       if (amountAdded >= 1) {
+  //         output += ", ";
+  //       }
+  //       output += s;
+  //       amountAdded++;
+  //     }
+  //   }
+  //   return noneSelected? "No filters selected." : output;
+  // }
+
   String getFiltersAsString() {
     bool noneSelected = true;
     int amountAdded = 0;
     String output = "";
-    for (String s in filterSelections.values) {
-      if (s != "All") {
-        noneSelected = false;
-        if (amountAdded >= 1) {
-          output += ", ";
-        }
-        output += s;
-        amountAdded++;
+
+    filterSelections.forEach((field, filters) {
+      // Skip this field if "All" is selected or the list is empty.
+      if (filters.isEmpty || filters.contains("All")) {
+        return; // continue to the next field.
       }
-    }
-    return noneSelected? "No filters selected." : output;
+      noneSelected = false;
+
+      // If you want to display the field name along with its filters, uncomment:
+      // String fieldOutput = "$field: ${filters.join(', ')}";
+      // Otherwise, just join the selected filters:
+      String fieldOutput = filters.join(", ");
+
+      if (amountAdded > 0) {
+        output += ", ";
+      }
+      output += fieldOutput;
+      amountAdded++;
+    });
+
+    return noneSelected ? "No filters selected." : output;
   }
 
   @override
@@ -182,7 +264,7 @@ class _DisplayPageState extends State<DisplayPage> with SingleTickerProviderStat
                                 ),
                                 child: Padding(
                                   padding: const EdgeInsets.all(8.0),
-                                  child: createDropDownFromList(courseLevelOptions, "Course Level"),
+                                  child: createMultiSelectDropDownFromList(courseLevelOptions, "Course Level"),
                                 ),
                               ),
                             )
@@ -197,7 +279,7 @@ class _DisplayPageState extends State<DisplayPage> with SingleTickerProviderStat
                                 ),
                                 child: Padding(
                                   padding: const EdgeInsets.all(8.0),
-                                  child: createDropDownFromList(csTopicOptions, "CS Topics")
+                                  child: createMultiSelectDropDownFromList(csTopicOptions, "CS Topics")
                                 ),
                               ),
                             )
@@ -212,7 +294,7 @@ class _DisplayPageState extends State<DisplayPage> with SingleTickerProviderStat
                                 ),
                                 child: Padding(
                                   padding: const EdgeInsets.all(8.0),
-                                  child: createDropDownFromList(learningObjectiveOptions, "Learning Objectives")
+                                  child: createMultiSelectDropDownFromList(learningObjectiveOptions, "Learning Objectives")
                                 ),
                               ),
                             )
