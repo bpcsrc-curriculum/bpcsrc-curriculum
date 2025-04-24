@@ -29,12 +29,12 @@ class LessonEntryModal extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: JustTheTooltip(
-                    backgroundColor: Color(0xFF333333),
+                    backgroundColor: const Color(0xFF333333),
                     content: Padding(
-                      padding: EdgeInsets.all(8.0),
+                      padding: const EdgeInsets.all(8.0),
                       child: Text(
                           sF.desc,
-                          style: TextStyle(
+                          style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               color: Colors.white
                           ),
@@ -60,7 +60,7 @@ class LessonEntryModal extends StatelessWidget {
 
     return DataTable(
         dataRowMaxHeight: double.infinity,
-        columns: [
+        columns: const [
           DataColumn(label: Text("Field", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),)),
           DataColumn(label: Text("Response", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)))
         ],
@@ -70,7 +70,7 @@ class LessonEntryModal extends StatelessWidget {
 
   Widget determineWidget(String field, String value){
     if (value.isEmpty) {
-      return Text("No data provided.");
+      return const Text("No data provided.");
     }
     switch (field) {
       case "Student Samples":
@@ -107,7 +107,7 @@ class LessonEntryModal extends StatelessWidget {
           children: [
             Text(
               entry.getSubmissionField("Activity").value,
-              style: TextStyle(
+              style: const TextStyle(
                 fontWeight: FontWeight.w700,
                 fontSize: 25
               ),
@@ -115,22 +115,22 @@ class LessonEntryModal extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
+                const Text(
                   "submitted by ",
                 ),
                 Text(
                   entry.getSubmissionField("Contributor").value,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontWeight: FontWeight.bold
                   ),
                 ),
                 Text(
-                  " ("+entry.getSubmissionField("Contributor Email").value+")",
-                  style: TextStyle(
+                  " (${entry.getSubmissionField("Contributor Email").value})",
+                  style: const TextStyle(
                       fontStyle: FontStyle.italic
                   ),
                 ),
-                Text(
+                const Text(
                   " on "
                 ),
                 Text(
@@ -139,8 +139,8 @@ class LessonEntryModal extends StatelessWidget {
               ],
             ),
             Text(
-                "       " + entry.getSubmissionField("Description").value,
-                style: TextStyle(
+                "       ${entry.getSubmissionField("Description").value}",
+                style: const TextStyle(
                   fontSize: 15.5
                 ),
             ),

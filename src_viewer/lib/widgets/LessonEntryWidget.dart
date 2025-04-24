@@ -2,7 +2,6 @@ import 'package:animate_do/animate_do.dart';
 import 'package:animate_on_hover/animate_on_hover.dart';
 import 'package:flutter/material.dart';
 import 'package:src_viewer/classes/LessonEntry.dart';
-import 'dart:html' as html;
 
 import '../modals/LessonEntryModal.dart';
 
@@ -94,7 +93,7 @@ class LessonEntryWidget extends StatelessWidget {
                     delayMilliSeconds,
                     Row(
                       children: [
-                        Text(
+                        const Text(
                           "A ",
                         ),
                         Text(
@@ -104,7 +103,7 @@ class LessonEntryWidget extends StatelessWidget {
                           ),
                         ),
                         Text(
-                            "${entry.getSubmissionField("Type").value.toLowerCase()}"
+                            entry.getSubmissionField("Type").value.toLowerCase()
                         ),
                       ],
                     ),
@@ -113,11 +112,11 @@ class LessonEntryWidget extends StatelessWidget {
                     delayMilliSeconds,
                     Row(
                       children: [
-                        Text(
+                        const Text(
                           " for ",
                         ),
                         Text(
-                          "${entry.getSubmissionField("Course Level").value}",
+                          entry.getSubmissionField("Course Level").value,
                           style: const TextStyle(
                               fontWeight: FontWeight.bold
                           ),
@@ -129,11 +128,11 @@ class LessonEntryWidget extends StatelessWidget {
                     delayMilliSeconds,
                     Row(
                       children: [
-                        Text(
+                        const Text(
                           " covering ",
                         ),
                         Text(
-                          "${shrinkLearningObjectiveString(entry.getSubmissionField("Learning Objectives").value)}",
+                          shrinkLearningObjectiveString(entry.getSubmissionField("Learning Objectives").value),
                           style: const TextStyle(
                               fontWeight: FontWeight.bold
                           ),
@@ -152,7 +151,7 @@ class LessonEntryWidget extends StatelessWidget {
                   IgnorePointer(
                     child: Text(
                         '          ${entry.getSubmissionField("Description").value}',
-                        style: TextStyle(fontSize: 15.5)
+                        style: const TextStyle(fontSize: 15.5)
                     )
                   )
               )
