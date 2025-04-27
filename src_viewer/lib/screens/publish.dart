@@ -17,7 +17,7 @@ class PublishingPage extends StatefulWidget {
 }
 
 class _PublishingPageState extends State<PublishingPage> implements IRefresh{
-  Map<String, String> filterSelections = Map<String, String>();
+  Map<String, String> filterSelections = <String, String>{};
   TextEditingController searchBar = TextEditingController();
   var _animation;
   var _animationController;
@@ -42,12 +42,12 @@ class _PublishingPageState extends State<PublishingPage> implements IRefresh{
       children: [
         Text(
           fieldName,
-          style: TextStyle(
+          style: const TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.bold
           ),
         ),
-        SizedBox(width: 15,),
+        const SizedBox(width: 15,),
         Container(
           decoration: BoxDecoration(
               color: Theme.of(context).highlightColor,
