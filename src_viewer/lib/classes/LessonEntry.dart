@@ -17,13 +17,37 @@ class LessonEntry {
     return combined.toLowerCase().contains(query.toLowerCase());
   }
 
-  bool queryFieldMap(Map<String, String> fieldMap) {
+  // bool queryFieldMap(Map<String, String> fieldMap) {
+  //   for (String field in fieldMap.keys) {
+  //     if (fieldMap[field] == "All") {
+  //       continue;
+  //     }
+  //     if (!queryField(fieldMap[field]!, field)) {
+  //       print("Not found");
+  //       return false;
+  //     }
+  //   }
+  //   return true;
+  // }
+  //
+  // bool queryField(String query, String field) {
+  //   return getSubmissionField(field).value.toLowerCase().contains(query.toLowerCase());
+  // }
+  //
+
+  bool queryFieldMap(Map<String, List<String>> fieldMap) {
     for (String field in fieldMap.keys) {
-      if (fieldMap[field] == "All") {
+      List<String> selectedQueries = fieldMap[field]!;
+
+      // If "All" is selected or no filter is applied, skip filtering for this field.
+      if (selectedQueries.contains("All") || selectedQueries.isEmpty) {
         continue;
       }
-      if (!queryField(fieldMap[field]!, field)) {
-        print("Not found");
+
+      // Check if at least one selected query is found in the submission field.
+      bool anyMatch = selectedQueries.any((query) => queryField(query, field));
+      if (!anyMatch) {
+        print("Not found for field: $field");
         return false;
       }
     }
@@ -31,9 +55,13 @@ class LessonEntry {
   }
 
   bool queryField(String query, String field) {
-    return getSubmissionField(field).value.toLowerCase().contains(query.toLowerCase());
+    // Assuming getSubmissionField(field).value returns a string.
+    return getSubmissionField(field)
+        .value
+        .toLowerCase()
+        .contains(query.toLowerCase());
   }
-  
+
   SubmissionField getSubmissionField(String field) {
     if (fields.containsKey(field)) {
       return fields[field]!;
