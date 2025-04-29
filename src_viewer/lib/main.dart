@@ -24,11 +24,11 @@ class MyApp extends StatelessWidget {
         textTheme: GoogleFonts.poppinsTextTheme(
           Theme.of(context).textTheme,
         ),
-        colorScheme: ColorScheme.fromSeed(seedColor: Color(0xFF228C4C)),
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF228C4C)),
         useMaterial3: true,
       ),
       debugShowCheckedModeBanner: false,
-      home: DisplayPage()
+      home: const DisplayPage()
     );
   }
 }
