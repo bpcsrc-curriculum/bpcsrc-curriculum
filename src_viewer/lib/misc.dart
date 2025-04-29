@@ -24,10 +24,21 @@ List<String> formFields = [
   "Issues and solutions (Optional)",
   "References for instructor (Optional)",
   "File Submission",
-  "Has this assignment been used for a class before?"
+  "Has this assignment been used for a class before?",
+  "Contributor Campus"
 ];
 
+// Map of all key:value pairs in database, update with data as needed.
 Map<String, SubmissionField> generateFields(Map<String, dynamic> map) {
+
+  /*
+  for (var key in map.keys) {
+    print('"$key"');
+  }
+
+  print('Contributor Campus: ${map["Contributor Campus"]}');
+  */
+
   return {
     "Approved": SubmissionField(
         value: map['Approved'],
@@ -95,6 +106,12 @@ Map<String, SubmissionField> generateFields(Map<String, dynamic> map) {
     "Used Before": SubmissionField(
         value: map["Has this assignment been used for a class before?"],
         desc: "Has this assignment been used for a class before?"),
+    "Campus": SubmissionField(
+          // The check is here as some data that could be approved in the future-
+          // does not have a campus assigned
+          value: map['Contributor Campus']?.toString() ?? "N/A",
+          desc: 'The name of the contributor campus.',
+        ),
   };
 }
 
@@ -112,6 +129,7 @@ List<String> fieldsToShowInTable = [
   "File URL",
   "Student Samples",
   "Instructor's Guide",
+  "Campus",
 ];
 
 List<String> fieldsToShowInTableForPublishing = [
@@ -128,6 +146,7 @@ List<String> fieldsToShowInTableForPublishing = [
   "File URL",
   "Student Samples",
   "Instructor's Guide",
+  "Campus",
 ];
 
 List<String> fieldsToUseAsFilters = [
@@ -170,4 +189,29 @@ List<String> learningObjectiveOptions = [
   "L5 - Addressing Accessibility and User Needs",
   "L6 - Inclusion of Community Groups",
   "L7 - Reaching Communal Goals"
+];
+
+List<String> srcTopicsOptions = [
+  "All",
+  "Algorithmic bias and fairness",
+  "Algorithmic transparency and accountability",
+  "Healthcare",
+  "Environmental Science and Sustainability",
+  "Finance and Banking",
+  "Responsible AI",
+  "Education",
+  "Accessibility",
+  "Politics",
+  "Economics and Equity",
+  "Housing"
+];
+// Add below to a list on slides
+List<String> collaboratorOptions = [
+  "All",
+  "SFSU",
+  "CalStateLA",
+  "CPP",
+  "Cal Poly",
+  "Fullerton",
+  "CSUDH"
 ];

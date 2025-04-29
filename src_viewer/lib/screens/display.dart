@@ -55,8 +55,13 @@ class _DisplayPageState extends State<DisplayPage> with SingleTickerProviderStat
   var _animationController;
   final db = FirebaseFirestore.instance;
 
+  // This returns every approved lesson in firebase
   Future<List<QueryDocumentSnapshot<Map<String, dynamic>>>?> fetchSubmissions() async {
-    return (await db.collection("submissions").where("Approved", isEqualTo: "APPROVED").get()).docs;
+    return (
+        await db.collection("submissions")
+        .where("Approved", isEqualTo: "APPROVED")
+        .get()
+    ).docs;
   }
 
   // original normal dropdown
@@ -326,6 +331,36 @@ class _DisplayPageState extends State<DisplayPage> with SingleTickerProviderStat
                               },
                             ),
                           )),
+                          Expanded(
+                              child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: StringMultiSelectDropDown(
+                              options: srcTopicsOptions,
+                              initialSelected:
+                                  filterSelections["Domain/Societal Factor"] ?? [],
+                              hint: "Select Learning Objectives",
+                              onChanged: (selected) {
+                                filterSelections["Domain/Societal Factor"] =
+                                    selected;
+                                setState(() {});
+                              },
+                            ),
+                          )),
+                          Expanded(
+                              child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: StringMultiSelectDropDown(
+                              options: collaboratorOptions,
+                              initialSelected:
+                                  filterSelections["Campus"] ?? [],
+                              hint: "Select Learning Objectives",
+                              onChanged: (selected) {
+                                filterSelections["Campus"] =
+                                    selected;
+                                setState(() {});
+                              },
+                            ),
+                          )),
                         ],
                       ),
                     ],
@@ -337,17 +372,37 @@ class _DisplayPageState extends State<DisplayPage> with SingleTickerProviderStat
                   future: fetchSubmissions(),
                   builder: (BuildContext context, AsyncSnapshot snapshot) {
                   if (snapshot.hasData) { // Successfully loaded data
-                    List<QueryDocumentSnapshot<Map<String, dynamic>>>? submissions = snapshot.data;
-                      if (submissions != null) {
-                        if (submissions.isEmpty) {
-                          return const Text(
-                            "There are no published materials available at the moment.",
-                            style: TextStyle(
+                    List<QueryDocumentSnapshot<Map<String, dynamic>>>? submissions = snapshot.data; // Converts data into a list of Firestore documents.
+                    if (submissions != null) {
+                      if (submissions.isEmpty) {
+                        return const Text(
+                          "There are no published materials available at the moment.",
+                          style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold
                           ),
+                        );
+                      }
+
+                      // List the current options selected (This does filtering)
+                      List<LessonEntry> filteredSubmissions = submissions
+                          .map((doc) => LessonEntry.fromMap(doc.data()))
+                          // entry.queryFieldMap(filterSelections) → Filters based on dropdown selections.
+                          .where((entry) => entry.queryAll(searchBar.text) && entry.queryFieldMap(filterSelections))
+                          .toList();
+
+                      // Now build the UI after
+                      return ListView.builder(
+                        itemCount: filteredSubmissions.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          currentDelay += delayMilliSeconds;
+                          return Padding(
+                            padding: const EdgeInsets.only(top: 15, left: 15, right: 15),
+                            child: LessonEntryWidget(entry: filteredSubmissions[index]),
                           );
-                        }
+                        },
+                      );
+                      /*
                       return ListView.builder( // Once posts are retrieved, generates ListView
                           itemCount: submissions.length,
                           itemBuilder: (BuildContext context, int index) {
@@ -363,11 +418,11 @@ class _DisplayPageState extends State<DisplayPage> with SingleTickerProviderStat
                             currentDelay+=delayMilliSeconds;
                               return Padding(
                               padding: const EdgeInsets.only(top: 15, left: 15, right: 15),
-                                child: LessonEntryWidget(entry: entry),
-                              );
-                            }
-                          },
-                        );
+                              child: LessonEntryWidget(entry: entry),
+                            );
+                          }
+                        },
+                      );*/
                     } else { // Problem loading data
                         return const Text("Error loading data");
                       }
