@@ -36,6 +36,7 @@ class StringMultiSelectDropDown extends StatelessWidget {
       initialItems: initialSelected,
       hintText: hint,
       onListChanged: onChanged,
+      maxlines: 3,
     );
   }
 }
