@@ -338,7 +338,7 @@ class _DisplayPageState extends State<DisplayPage> with SingleTickerProviderStat
                               options: srcTopicsOptions,
                               initialSelected:
                                   filterSelections["Domain/Societal Factor"] ?? [],
-                              hint: "Select Learning Objectives",
+                              hint: "Select Domain/Societal Factor",
                               onChanged: (selected) {
                                 filterSelections["Domain/Societal Factor"] =
                                     selected;
@@ -353,7 +353,7 @@ class _DisplayPageState extends State<DisplayPage> with SingleTickerProviderStat
                               options: collaboratorOptions,
                               initialSelected:
                                   filterSelections["Campus"] ?? [],
-                              hint: "Select Learning Objectives",
+                              hint: "Select Campus",
                               onChanged: (selected) {
                                 filterSelections["Campus"] =
                                     selected;
