@@ -30,6 +30,7 @@ class ReviewModal extends StatelessWidget {
               padding: const EdgeInsets.all(8.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
                     review.reviewerName,
@@ -38,17 +39,17 @@ class ReviewModal extends StatelessWidget {
                       fontSize: 16,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 8),
                   Text(
-                    review.contributorEmail,
+                    "${review.reviewerOccupation}, ${review.courseNumber}",
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.grey[600],
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 8),
                   Text(
-                    "${review.reviewerOccupation} at ${review.campus}",
+                    review.campus,
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.grey[600],
@@ -66,12 +67,13 @@ class ReviewModal extends StatelessWidget {
               padding: const EdgeInsets.all(8.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
                     review.review,
                     style: const TextStyle(fontSize: 14),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 8),
                   Text(
                     formattedDate,
                     style: TextStyle(
@@ -90,17 +92,25 @@ class ReviewModal extends StatelessWidget {
 
     return DataTable(
       dataRowMaxHeight: double.infinity,
+      columnSpacing: 20,
+      horizontalMargin: 10,
       columns: const [
         DataColumn(
-          label: Text(
-            "Reviewer Information",
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          label: Expanded(
+            child: Text(
+              "Reviewer Information",
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
         ),
         DataColumn(
-          label: Text(
-            "Review",
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          label: Expanded(
+            child: Text(
+              "Review",
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
         ),
       ],
@@ -120,38 +130,51 @@ class ReviewModal extends StatelessWidget {
               style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 25),
             ),
             const SizedBox(height: 20),
-            StreamBuilder<QuerySnapshot>(
-              stream: db
-                  .collection("submissions")
-                  .where("Activity Title",
-                      isEqualTo: entry.getSubmissionField("Activity").value)
-                  .snapshots(),
-              builder: (context, snapshot) {
-                if (snapshot.hasError) {
-                  return const Center(
-                    child: Text("Error loading reviews"),
-                  );
-                }
+            LayoutBuilder(
+              builder: (context, constraints) {
+                return StreamBuilder<QuerySnapshot>(
+                  stream: db
+                      .collection("submissions")
+                      .where("Activity Title",
+                          isEqualTo: entry.getSubmissionField("Activity").value)
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasError) {
+                      return const Center(
+                        child: Text("Error loading reviews"),
+                      );
+                    }
 
-                if (!snapshot.hasData) {
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                }
+                    if (!snapshot.hasData) {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    }
 
-                var doc = snapshot.data!.docs.first;
-                var reviews = (doc.data() as Map<String, dynamic>)['Reviews']
-                    as List<dynamic>?;
+                    var doc = snapshot.data!.docs.first;
+                    var reviews = (doc.data()
+                        as Map<String, dynamic>)['Reviews'] as List<dynamic>?;
 
-                if (reviews == null || reviews.isEmpty) {
-                  return displayReviewsTable(context, Review.getTestReviews());
-                }
+                    if (reviews == null || reviews.isEmpty) {
+                      return displayReviewsTable(
+                          context, Review.getTestReviews());
+                    }
 
-                return displayReviewsTable(
-                  context,
-                  reviews
-                      .map((reviewMap) => Review.fromMap(reviewMap))
-                      .toList(),
+                    return SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minWidth: constraints.maxWidth,
+                        ),
+                        child: displayReviewsTable(
+                          context,
+                          reviews
+                              .map((reviewMap) => Review.fromMap(reviewMap))
+                              .toList(),
+                        ),
+                      ),
+                    );
+                  },
                 );
               },
             ),

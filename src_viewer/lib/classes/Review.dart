@@ -5,6 +5,7 @@ class Review {
   final String review;
   final String reviewerOccupation;
   final String reviewerName;
+  final String courseNumber;
 
   Review({
     required this.contributorEmail,
@@ -13,6 +14,7 @@ class Review {
     required this.review,
     required this.reviewerOccupation,
     required this.reviewerName,
+    required this.courseNumber,
   });
 
   factory Review.fromMap(Map<String, dynamic> map) {
@@ -23,6 +25,7 @@ class Review {
       review: map['Review'] ?? '',
       reviewerOccupation: map['Reviewer Occupation'] ?? '',
       reviewerName: map['ReviewerName'] ?? '',
+      courseNumber: map['Course Number'] ?? '',
     );
   }
 
@@ -36,6 +39,7 @@ class Review {
             "This is an excellent assignment that effectively teaches students about social responsibility in computing. The real-world examples and hands-on activities make the concepts very engaging.",
         reviewerOccupation: "Professor",
         reviewerName: "Dr. Smith",
+        courseNumber: "CS 101",
       ),
       Review(
         contributorEmail: "ta.johnson@csula.edu",
@@ -46,6 +50,7 @@ class Review {
             "I've used this assignment in my lab sections and students really enjoyed the practical approach. The discussion questions sparked great conversations about ethics in technology.",
         reviewerOccupation: "Teaching Assistant",
         reviewerName: "Sarah Johnson",
+        courseNumber: "CS 101",
       ),
       Review(
         contributorEmail: "student.wilson@csula.edu",
@@ -56,6 +61,7 @@ class Review {
             "As a student, I found this assignment really eye-opening. It helped me understand how technology can impact different communities and the importance of considering diverse perspectives.",
         reviewerOccupation: "Student",
         reviewerName: "Michael Wilson",
+        courseNumber: "CS 101",
       ),
     ];
   }
