@@ -173,7 +173,8 @@ class LessonEntryWidget extends StatelessWidget {
                     reviewCount = 3; // Show test reviews count
                   }
                   return IconButton(
-                    icon: const Icon(Icons.chat_bubble_outline),
+                    icon: const Icon(Icons.rate_review_outlined, size: 28),
+                    iconSize: 28,
                     onPressed: () {
                       createReviewModal(entry, context);
                     },
