@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:src_viewer/classes/LessonEntry.dart';
 import 'package:src_viewer/classes/Review.dart';
+import 'dart:html' as html;
 
 class ReviewModal extends StatelessWidget {
   final LessonEntry entry;
@@ -18,8 +19,8 @@ class ReviewModal extends StatelessWidget {
     int currentDelay = 0;
 
     for (Review review in reviews) {
-      var dateTime = DateTime.fromMillisecondsSinceEpoch(
-          int.parse(review.assignmentTimestamp));
+      var dateTime =
+          DateTime.fromMillisecondsSinceEpoch(int.parse(review.timestamp));
       var formattedDate = DateFormat("MM/dd/yyyy HH:mm:ss").format(dateTime);
 
       rows.add(DataRow(cells: [
@@ -41,7 +42,7 @@ class ReviewModal extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    "${review.reviewerOccupation}, ${review.courseNumber}",
+                    "${review.reviewerRole}, ${review.courseCodeAndTitle}",
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.grey[600],
@@ -49,7 +50,7 @@ class ReviewModal extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    review.campus,
+                    review.contributorCampus,
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.grey[600],
@@ -75,7 +76,9 @@ class ReviewModal extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    formattedDate,
+                    DateFormat("MM/dd/yyyy HH:mm:ss").format(
+                        DateTime.fromMillisecondsSinceEpoch(
+                            int.tryParse(review.timestamp) ?? 0)),
                     style: TextStyle(
                       fontSize: 12,
                       color: Colors.grey[600],
@@ -180,22 +183,33 @@ class ReviewModal extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             Center(
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  // TODO: Implement add review functionality
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Add review functionality coming soon!'),
-                      duration: Duration(seconds: 2),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      // Open the form in a new tab
+                      html.window.open(
+                          'https://forms.gle/QB76gBdPAn6H3dEr8', '_blank');
+                    },
+                    icon: const Icon(Icons.add_comment),
+                    label: const Text("Add Review"),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 12),
                     ),
-                  );
-                },
-                icon: const Icon(Icons.add_comment),
-                label: const Text("Add Review"),
-                style: ElevatedButton.styleFrom(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                ),
+                  )
+                  // const SizedBox(width: 16),
+                  // ElevatedButton.icon(
+                  //   onPressed: () {
+                  //     // Open the form in a new tab
+                  //     html.window.open(
+                  //         'https://forms.gle/QB76gBdPAn6H3dEr8', '_blank');
+                  //   },
+                  //   icon: const Icon(Icons.open_in_new),
+                  //   label: const Text("Submit Review Form"),
+                  // ),
+                ],
               ),
             ),
           ],

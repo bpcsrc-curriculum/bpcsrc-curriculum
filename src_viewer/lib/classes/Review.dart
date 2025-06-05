@@ -1,67 +1,69 @@
 class Review {
-  final String contributorEmail;
-  final String assignmentTimestamp;
-  final String campus;
+  final String reviewerEmail;
+  final String timestamp;
+  final String contributorCampus;
   final String review;
-  final String reviewerOccupation;
+  final String reviewerRole;
   final String reviewerName;
-  final String courseNumber;
+  final String courseCodeAndTitle;
 
   Review({
-    required this.contributorEmail,
-    required this.assignmentTimestamp,
-    required this.campus,
+    required this.reviewerEmail,
+    required this.timestamp,
+    required this.contributorCampus,
     required this.review,
-    required this.reviewerOccupation,
+    required this.reviewerRole,
     required this.reviewerName,
-    required this.courseNumber,
+    required this.courseCodeAndTitle,
   });
 
   factory Review.fromMap(Map<String, dynamic> map) {
     return Review(
-      contributorEmail: map['Contributor (email)'] ?? '',
-      assignmentTimestamp: map['AssignmentTimestamp'] ?? '',
-      campus: map['Campus'] ?? '',
+      reviewerEmail: map['Reviewer Email'] ?? '',
+      timestamp: map['Timestamp']?.toString() ?? '',
+      contributorCampus: map['Contributor Campus'] ?? '',
       review: map['Review'] ?? '',
-      reviewerOccupation: map['Reviewer Occupation'] ?? '',
-      reviewerName: map['ReviewerName'] ?? '',
-      courseNumber: map['Course Number'] ?? '',
+      reviewerRole: map['Reviewer Role'] ?? '',
+      reviewerName: map['Reviewer Name'] ?? '',
+      courseCodeAndTitle:
+          map['Course Code and Title (e.g., CS101 - Introduction to Programming)'] ??
+              '',
     );
   }
 
   static List<Review> getTestReviews() {
     return [
       Review(
-        contributorEmail: "prof.smith@csula.edu",
-        assignmentTimestamp: DateTime.now().millisecondsSinceEpoch.toString(),
-        campus: "California State University, Los Angeles",
+        reviewerEmail: "prof.smith@csula.edu",
+        timestamp: DateTime.now().millisecondsSinceEpoch.toString(),
+        contributorCampus: "California State University, Los Angeles",
         review:
             "This is an excellent assignment that effectively teaches students about social responsibility in computing. The real-world examples and hands-on activities make the concepts very engaging.",
-        reviewerOccupation: "Professor",
+        reviewerRole: "Professor",
         reviewerName: "Dr. Smith",
-        courseNumber: "CS 101",
+        courseCodeAndTitle: "CS101 - Introduction to Programming",
       ),
       Review(
-        contributorEmail: "ta.johnson@csula.edu",
-        assignmentTimestamp: (DateTime.now().millisecondsSinceEpoch - 86400000)
+        reviewerEmail: "ta.johnson@csula.edu",
+        timestamp: (DateTime.now().millisecondsSinceEpoch - 86400000)
             .toString(), // 1 day ago
-        campus: "California State University, Los Angeles",
+        contributorCampus: "California State University, Los Angeles",
         review:
             "I've used this assignment in my lab sections and students really enjoyed the practical approach. The discussion questions sparked great conversations about ethics in technology.",
-        reviewerOccupation: "Teaching Assistant",
+        reviewerRole: "Teaching Assistant",
         reviewerName: "Sarah Johnson",
-        courseNumber: "CS 101",
+        courseCodeAndTitle: "CS101 - Introduction to Programming",
       ),
       Review(
-        contributorEmail: "student.wilson@csula.edu",
-        assignmentTimestamp: (DateTime.now().millisecondsSinceEpoch - 172800000)
+        reviewerEmail: "student.wilson@csula.edu",
+        timestamp: (DateTime.now().millisecondsSinceEpoch - 172800000)
             .toString(), // 2 days ago
-        campus: "California State University, Los Angeles",
+        contributorCampus: "California State University, Los Angeles",
         review:
             "As a student, I found this assignment really eye-opening. It helped me understand how technology can impact different communities and the importance of considering diverse perspectives.",
-        reviewerOccupation: "Student",
+        reviewerRole: "Student",
         reviewerName: "Michael Wilson",
-        courseNumber: "CS 101",
+        courseCodeAndTitle: "CS101 - Introduction to Programming",
       ),
     ];
   }

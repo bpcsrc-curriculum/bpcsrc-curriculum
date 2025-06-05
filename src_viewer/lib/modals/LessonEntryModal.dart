@@ -19,56 +19,55 @@ class LessonEntryModal extends StatelessWidget {
     List<DataRow> rows = [];
     int delayMilliSeconds = 75;
     int currentDelay = 0;
-    for(String label in info) {
+    for (String label in info) {
       SubmissionField sF = entry.getSubmissionField(label);
 
       rows.add(DataRow(cells: [
-        DataCell(
-            FadeInLeft(
-                delay: Duration(milliseconds: currentDelay),
-                child: Padding(
+        DataCell(FadeInLeft(
+            delay: Duration(milliseconds: currentDelay),
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: JustTheTooltip(
+                backgroundColor: const Color(0xFF333333),
+                content: Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: JustTheTooltip(
-                    backgroundColor: const Color(0xFF333333),
-                    content: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                          sF.desc,
-                          style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white
-                          ),
-                      ),
-                    ),
-                    child: Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
+                  child: Text(
+                    sF.desc,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, color: Colors.white),
                   ),
-                )
-            )
-        ),
-        DataCell(
-            FadeInLeft(
-                delay: Duration(milliseconds: currentDelay),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: determineWidget(label, sF.value),
                 ),
-            )
-        )
+                child: Text(label,
+                    style: const TextStyle(fontWeight: FontWeight.bold)),
+              ),
+            ))),
+        DataCell(FadeInLeft(
+          delay: Duration(milliseconds: currentDelay),
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: determineWidget(label, sF.value),
+          ),
+        ))
       ]));
-      currentDelay+=delayMilliSeconds;
+      currentDelay += delayMilliSeconds;
     }
 
     return DataTable(
         dataRowMaxHeight: double.infinity,
         columns: const [
-          DataColumn(label: Text("Field", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),)),
-          DataColumn(label: Text("Response", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)))
+          DataColumn(
+              label: Text(
+            "Field",
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          )),
+          DataColumn(
+              label: Text("Response",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)))
         ],
-        rows: rows
-    );
+        rows: rows);
   }
 
-  Widget determineWidget(String field, String value){
+  Widget determineWidget(String field, String value) {
     if (value.isEmpty) {
       return const Text("No data provided.");
     }
@@ -79,14 +78,11 @@ class LessonEntryModal extends StatelessWidget {
         List<String> URLs = value.split(",");
         List<Widget> downloadButtons = [];
         for (int i = 0; i < URLs.length; i++) {
-          downloadButtons.add(
-            ElevatedButton(
-                onPressed: () {
-                  html.window.open(URLs[i], field);
-                },
-                child: Text("View Link ${i+1}")
-            )
-          );
+          downloadButtons.add(ElevatedButton(
+              onPressed: () {
+                html.window.open(URLs[i], field);
+              },
+              child: Text("View Link ${i + 1}")));
         }
         return Column(
           children: downloadButtons,
@@ -98,7 +94,13 @@ class LessonEntryModal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var dateTime = DateTime.fromMillisecondsSinceEpoch(int.parse(entry.fields['Upload Date']!.value));
+    String timestamp = entry.fields['Upload Date']?.value ?? '';
+    DateTime dateTime;
+    try {
+      dateTime = DateTime.fromMillisecondsSinceEpoch(int.parse(timestamp));
+    } catch (e) {
+      dateTime = DateTime.now(); // Fallback to current time if parsing fails
+    }
     var formattedDate = DateFormat("MM/dd/yyyy HH:mm:ss").format(dateTime);
 
     return SelectionArea(
@@ -107,10 +109,7 @@ class LessonEntryModal extends StatelessWidget {
           children: [
             Text(
               entry.getSubmissionField("Activity").value,
-              style: const TextStyle(
-                fontWeight: FontWeight.w700,
-                fontSize: 25
-              ),
+              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 25),
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -120,29 +119,19 @@ class LessonEntryModal extends StatelessWidget {
                 ),
                 Text(
                   entry.getSubmissionField("Contributor").value,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold
-                  ),
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 Text(
                   " (${entry.getSubmissionField("Contributor Email").value})",
-                  style: const TextStyle(
-                      fontStyle: FontStyle.italic
-                  ),
+                  style: const TextStyle(fontStyle: FontStyle.italic),
                 ),
-                const Text(
-                  " on "
-                ),
-                Text(
-                  formattedDate
-                )
+                const Text(" on "),
+                Text(formattedDate)
               ],
             ),
             Text(
-                "       ${entry.getSubmissionField("Description").value}",
-                style: const TextStyle(
-                  fontSize: 15.5
-                ),
+              "       ${entry.getSubmissionField("Description").value}",
+              style: const TextStyle(fontSize: 15.5),
             ),
             displayTabularFields(context),
           ],
@@ -154,20 +143,19 @@ class LessonEntryModal extends StatelessWidget {
 
 dynamic createLessonEntryModal(LessonEntry entry, BuildContext context) {
   return AwesomeDialog(
-      context: context,
-      animType: AnimType.leftSlide,
-      dialogType: DialogType.noHeader,
-      body: Padding(
-        padding: const EdgeInsets.all(15.0),
-        child: LessonEntryModal(entry: entry),
-      ),
-      btnCancelText: "Back",
-      btnCancelColor: Colors.grey,
-      btnCancelIcon: Icons.arrow_back,
-      btnCancelOnPress: () {
-
-      }
-  ).show().then((value) {
+          context: context,
+          animType: AnimType.leftSlide,
+          dialogType: DialogType.noHeader,
+          body: Padding(
+            padding: const EdgeInsets.all(15.0),
+            child: LessonEntryModal(entry: entry),
+          ),
+          btnCancelText: "Back",
+          btnCancelColor: Colors.grey,
+          btnCancelIcon: Icons.arrow_back,
+          btnCancelOnPress: () {})
+      .show()
+      .then((value) {
     RefreshNotifier().notifyListeners();
   });
 }

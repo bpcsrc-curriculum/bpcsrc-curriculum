@@ -30,70 +30,73 @@ List<String> formFields = [
 Map<String, SubmissionField> generateFields(Map<String, dynamic> map) {
   return {
     "Approved": SubmissionField(
-        value: map['Approved'],
+        value: map['Approved']?.toString() ?? '',
         desc:
             "Whether or not this curriculum is approved to be viewed and downloaded."),
     "Upload Date": SubmissionField(
-        value: map['Timestamp'].toString(),
+        value: map['Timestamp']?.toString() ?? '',
         desc: 'The time that this assignment was uploaded.'),
     "Activity": SubmissionField(
-        value: map['Activity Title'], desc: 'The name of the lesson.'),
+        value: map['Activity Title']?.toString() ?? '',
+        desc: 'The name of the lesson.'),
     "Contributor": SubmissionField(
-        value: map['Contributor Name'],
+        value: map['Contributor Name']?.toString() ?? '',
         desc: 'The name of the assignment creator.'),
     "Contributor Email": SubmissionField(
-        value: map['Contributor (email)'],
+        value: map['Contributor (email)']?.toString() ?? '',
         desc: 'The email address of the assignment creator.'),
     "Description": SubmissionField(
-        value: map['Description'],
+        value: map['Description']?.toString() ?? '',
         desc:
             'A short description of the concept covered and the tasks students will complete.'),
     "Type": SubmissionField(
-        value: map['Type (Optional)'],
+        value: map['Type (Optional)']?.toString() ?? '',
         desc: 'Whether this is an assignment or a project,'),
     "Course Level": SubmissionField(
-        value: map['Course Level'],
+        value: map['Course Level']?.toString() ?? '',
         desc: 'The intended course for this assignment.'),
     "Domain/Societal Factor": SubmissionField(
-        value: map['Domain/Societal Factor'],
+        value: map['Domain/Societal Factor']?.toString() ?? '',
         desc: 'The societal factor or domain related to this assignment.'),
     "Programming Language": SubmissionField(
-        value: map['Programming Language'],
+        value: map['Programming Language']?.toString() ?? '',
         desc:
             'Programming languages that submissions are intended to be written in.'),
     "CS Topics": SubmissionField(
-        value: map['CS Topics'],
+        value: map['CS Topics']?.toString() ?? '',
         desc: 'A list of topics as covered by this assignment.'),
     "Prerequisite Knowledge": SubmissionField(
-        value: map['Prerequisite Knowledge'],
+        value: map['Prerequisite Knowledge']?.toString() ?? '',
         desc:
             'A list of concepts students should already know so they can work on the assignment.'),
     "Learning Objectives": SubmissionField(
-        value: map['Learning Objectives'],
+        value: map['Learning Objectives']?.toString() ?? '',
         desc:
             'A list of concepts students should know by the end of the assignment.'),
     "Student Samples": SubmissionField(
-        value: map['Student Samples (Optional)'],
+        value: map['Student Samples (Optional)']?.toString() ?? '',
         desc:
             'A URL of what a proper submission to this assignment should look like.'),
     "Instructor's Guide": SubmissionField(
-        value: map["Instructor's Guide (Optional)"],
+        value: map["Instructor's Guide (Optional)"]?.toString() ?? '',
         desc:
             'A link to a Google Drive document of any additional materials that instructors can use.'),
     "Issues and Solutions": SubmissionField(
-        value: map['Issues and solutions (Optional)'],
+        value: map['Issues and solutions (Optional)']?.toString() ?? '',
         desc:
             'A list of issues that instructors might experience while giving the assignment and possible solutions to address them.'),
     "References for Instructor": SubmissionField(
-        value: map['References for instructor (Optional)'],
+        value: map['References for instructor (Optional)']?.toString() ?? '',
         desc:
             'Any reference materials, readings, or answer keys that can help the instructor.'),
     "File URL": SubmissionField(
-        value: map['File Submission'],
+        value: map['File Submission']?.toString() ?? '',
         desc:
             'A link to a Google Drive document of the assignment for you to download.'),
     "Used Before": SubmissionField(
-        value: map["Has this assignment been used for a class before?"],
+        value: map["Has this assignment been used for a class before?"]
+                ?.toString() ??
+            '',
         desc: "Has this assignment been used for a class before?"),
   };
 }
@@ -136,7 +139,12 @@ List<String> fieldsToUseAsFilters = [
   "Learning Objectives"
 ];
 
-List<String> courseLevelOptions = ["All", "CS0 - Introduction of Computing", "CS1 - Introduction to Programming", "CS2 - Advanced Programming computing"];
+List<String> courseLevelOptions = [
+  "All",
+  "CS0 - Introduction of Computing",
+  "CS1 - Introduction to Programming",
+  "CS2 - Advanced Programming computing"
+];
 
 List<String> csTopicOptions = [
   "All",

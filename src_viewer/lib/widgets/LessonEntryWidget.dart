@@ -27,10 +27,16 @@ class LessonEntryWidget extends StatelessWidget {
   }
 
   String shrinkLearningObjectiveString(String learningObjectives) {
+    if (learningObjectives.isEmpty) return '';
     List<String> objectiveList = learningObjectives.split(",");
     String output = "";
     for (int i = 0; i < objectiveList.length; i++) {
-      output += objectiveList[i].replaceAll(" ", "").substring(0, 2);
+      String objective = objectiveList[i].trim();
+      if (objective.length >= 2) {
+        output += objective.substring(0, 2);
+      } else if (objective.isNotEmpty) {
+        output += objective;
+      }
       if (i < objectiveList.length - 1) {
         output += ", ";
       }
