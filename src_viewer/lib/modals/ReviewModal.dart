@@ -190,7 +190,7 @@ class ReviewModal extends StatelessWidget {
                     onPressed: () {
                       // Open the form in a new tab
                       html.window.open(
-                          'https://forms.gle/QB76gBdPAn6H3dEr8', '_blank');
+                          'https://docs.google.com/forms/d/e/1FAIpQLSfwhndjvPnTOlKMWyH-EvRNhTzwPpLEhOySHA_4I_XdS8UX9w/viewform?usp=pp_url&entry.877086558=${Uri.encodeComponent(entry.getSubmissionField("Activity").value)}', '_blank');
                     },
                     icon: const Icon(Icons.add_comment),
                     label: const Text("Add Review"),
