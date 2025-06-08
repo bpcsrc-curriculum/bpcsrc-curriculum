@@ -3,6 +3,7 @@ import 'package:animate_on_hover/animate_on_hover.dart';
 import 'package:flutter/material.dart';
 import 'package:src_viewer/classes/LessonEntry.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:src_viewer/classes/Review.dart';
 
 import '../modals/LessonEntryModal.dart';
 import '../modals/ReviewModal.dart';
@@ -173,19 +174,51 @@ class LessonEntryWidget extends StatelessWidget {
                     var doc = snapshot.data!.docs.first;
                     var reviews = (doc.data()
                         as Map<String, dynamic>)['Reviews'] as List<dynamic>?;
-                    reviewCount = reviews?.length ?? 0;
+
+                    if (reviews != null) {
+                      // Count only approved reviews
+                      reviewCount = reviews
+                          .map((reviewMap) => Review.fromMap(reviewMap))
+                          .where((review) =>
+                              review.Approved.toUpperCase() == "APPROVED")
+                          .length;
+                    }
                   }
                   if (reviewCount == 0) {
                     reviewCount = 3; // Show test reviews count
                   }
-                  return IconButton(
-                    icon: const Icon(Icons.rate_review_outlined, size: 28),
-                    iconSize: 28,
-                    onPressed: () {
-                      createReviewModal(entry, context);
-                    },
-                    tooltip:
-                        '$reviewCount Review${reviewCount == 1 ? '' : 's'}',
+                  return Stack(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.rate_review_outlined, size: 28),
+                        iconSize: 28,
+                        onPressed: () {
+                          createReviewModal(entry, context);
+                        },
+                        tooltip:
+                            '$reviewCount Review${reviewCount == 1 ? '' : 's'}',
+                      ),
+                      if (reviewCount > 0)
+                        Positioned(
+                          right: 0,
+                          top: 0,
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).primaryColor,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Text(
+                              reviewCount.toString(),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
                   );
                 },
               ),

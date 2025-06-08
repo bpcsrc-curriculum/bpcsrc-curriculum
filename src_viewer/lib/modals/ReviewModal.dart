@@ -163,6 +163,18 @@ class ReviewModal extends StatelessWidget {
                           context, Review.getTestReviews());
                     }
 
+                    // Filter reviews to only show approved ones
+                    var approvedReviews = reviews
+                        .map((reviewMap) => Review.fromMap(reviewMap))
+                        .where((review) =>
+                            review.Approved.toUpperCase() == "APPROVED")
+                        .toList();
+
+                    if (approvedReviews.isEmpty) {
+                      return displayReviewsTable(
+                          context, Review.getTestReviews());
+                    }
+
                     return SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       child: ConstrainedBox(
@@ -171,9 +183,7 @@ class ReviewModal extends StatelessWidget {
                         ),
                         child: displayReviewsTable(
                           context,
-                          reviews
-                              .map((reviewMap) => Review.fromMap(reviewMap))
-                              .toList(),
+                          approvedReviews,
                         ),
                       ),
                     );
