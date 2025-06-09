@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:floating_action_bubble/floating_action_bubble.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +9,7 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:src_viewer/widgets/LessonEntryWidget.dart';
 import 'package:src_viewer/misc.dart';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
+import 'package:src_viewer/config.dart';
 
 import 'package:animated_custom_dropdown/custom_dropdown.dart';
 import 'dart:developer';
@@ -14,6 +17,11 @@ import 'dart:developer';
 import '../classes/IRefresh.dart';
 import '../classes/RefreshNotifier.dart';
 import '../modals/PasswordEntryModal.dart';
+
+import 'package:firebase_analytics/firebase_analytics.dart';
+import '../main.dart' show analytics, AnalyticsEvents;
+
+FirebaseAnalytics analytics = FirebaseAnalytics.instance;
 
 class StringMultiSelectDropDown extends StatelessWidget {
   final List<String> options;
@@ -49,137 +57,119 @@ class DisplayPage extends StatefulWidget {
 }
 
 class _DisplayPageState extends State<DisplayPage> with SingleTickerProviderStateMixin implements IRefresh{
-  // Map<String, String> filterSelections = Map<String, String>();
   Map<String, List<String>> filterSelections = {};
   TextEditingController searchBar = TextEditingController();
   var _animation;
   var _animationController;
   final db = FirebaseFirestore.instance;
 
-  // This returns every approved lesson in firebase
-  Future<List<QueryDocumentSnapshot<Map<String, dynamic>>>?> fetchSubmissions() async {
-    return (
-        await db.collection("submissions")
-        .where("Approved", isEqualTo: "APPROVED")
-        .get()
-    ).docs;
+  @override
+  void initState() {
+    super.initState();
+    RefreshNotifier().addListener(this);
+
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 260),
+    );
+
+    final curvedAnimation = CurvedAnimation(curve: Curves.easeInOut, parent: _animationController);
+    _animation = Tween<double>(begin: 0, end: 1).animate(curvedAnimation);
+
+    // Log screen view
+    _logScreenView();
   }
 
-  // original normal dropdown
-  // Widget createDropDownFromList(List<String> options, String fieldName) {
-  //   setState(() {
-  //     // filterSelections.putIfAbsent(fieldName, () => options.first);
-  //     filterSelections.putIfAbsent(fieldName, () => <String>[]);
-  //   });
-  //   return Row(
-  //     children: [
-  //       Text(
-  //         fieldName,
-  //         style: TextStyle(
-  //           fontSize: 15,
-  //           fontWeight: FontWeight.bold
-  //         ),
-  //       ),
-  //       SizedBox(width: 15,),
-  //       Container(
-  //         decoration: BoxDecoration(
-  //             color: Theme.of(context).highlightColor,
-  //             borderRadius: BorderRadius.circular(10)
-  //         ),
-  //         child: DropdownButton(
-  //             value: filterSelections[fieldName],
-  //             icon: const Icon(Icons.arrow_downward),
-  //             elevation: 16,
-  //             items: options.map<DropdownMenuItem<String>>((String value) {
-  //               return DropdownMenuItem<String>(
-  //                 value: value,
-  //                 child: Padding(
-  //                   padding: const EdgeInsets.all(8.0),
-  //                   child: Text(value),
-  //                 ),
-  //               );
-  //             }).toList(),
-  //             onChanged: (String? value) {
-  //               setState(() {
-  //                 filterSelections[fieldName] = value!;
-  //                 print(filterSelections.values);
-  //               });
-  //             }
-  //         ),
-  //       ),
-  //     ],
-  //   );
-  // }
+  Future<void> _logScreenView() async {
+    try {
+      await analytics.logScreenView(
+        screenName: 'display_page',
+        screenClass: 'DisplayPage',
+      );
+      if (Config.debugAnalytics) {
+        print('Analytics Screen View Sent: display_page');
+      }
+    } catch (e) {
+      print('Error sending screen view: $e');
+    }
+  }
 
-  // pop up multi select dropdown
-  // Widget createMultiSelectDropDownFromList(List<String> options, String fieldName) {
-  //   // Initialize the filter for this field as an empty list if not already set.
-  //   setState(() {
-  //     filterSelections.putIfAbsent(fieldName, () => <String>[]);
-  //   });
-  //   return Row(
-  //     children: [
-  //       Text(
-  //         fieldName,
-  //         style: const TextStyle(
-  //           fontSize: 15,
-  //           fontWeight: FontWeight.bold,
-  //         ),
-  //       ),
-  //       const SizedBox(width: 15),
-  //       // Using Expanded to allow the dropdown to take up available space.
-  //       Expanded(
-  //         child: Container(
-  //           decoration: BoxDecoration(
-  //             color: Theme.of(context).highlightColor,
-  //             borderRadius: BorderRadius.circular(10),
-  //           ),
-  //           child: MultiSelectDialogField<String>(
-  //             // Convert each option into a MultiSelectItem.
-  //             items: options
-  //                 .map((option) => MultiSelectItem<String>(option, option))
-  //                 .toList(),
-  //             title: Text(fieldName),
-  //             // Display selected options as a comma-separated string.
-  //             buttonText: Text(
-  //               filterSelections[fieldName]!.isEmpty
-  //                   ? 'Select $fieldName'
-  //                   : filterSelections[fieldName]!.join(', '),
-  //               overflow: TextOverflow.ellipsis,
-  //             ),
-  //             buttonIcon: const Icon(Icons.arrow_drop_down),
-  //             listType: MultiSelectListType.CHIP, // Use CHIP or LIST based on your preference.
-  //             onConfirm: (List<String> selectedValues) {
-  //               setState(() {
-  //                 filterSelections[fieldName] = selectedValues;
-  //                 print('Selected for $fieldName: ${filterSelections[fieldName]}');
-  //               });
-  //             },
-  //             // Optional: Customize the dialog or chip display if desired.
-  //           ),
-  //         ),
-  //       ),
-  //     ],
-  //   );
-  // }
+  Future<void> _logEvent(String name, Map<String, dynamic> parameters) async {
+    try {
+      await analytics.logEvent(
+        name: name,
+        parameters: parameters,
+      );
+      if (Config.debugAnalytics) {
+        print('Analytics Event Sent: $name');
+        print('Parameters: $parameters');
+      }
+    } catch (e) {
+      print('Error sending analytics event $name: $e');
+    }
+  }
 
+  // This returns every approved lesson in firebase
+  Future<List<QueryDocumentSnapshot<Map<String, dynamic>>>?> fetchSubmissions() async {
+    try {
+      // Log data fetch
+      await _logEvent('data_fetch', {
+        'source': 'display_page',
+        'timestamp': DateTime.now().toIso8601String(),
+      });
 
-  // String getFiltersAsString() {
-  //   bool noneSelected = true;
-  //   int amountAdded = 0;
-  //   String output = "";
-  //   for (String s in filterSelections.values) {
-  //     if (s != "All") {
-  //       noneSelected = false;
-  //       if (amountAdded >= 1) {
-  //         output += ", ";
-  //       }
-  //       output += s;
-  //       amountAdded++;
-  //     }
-  //   }
-  //   return noneSelected? "No filters selected." : output;
-  // }
+      final docs = await db.collection("submissions")
+          .where("Approved", isEqualTo: "APPROVED")
+          .get();
+      
+      // Log successful fetch
+      await _logEvent('lesson_view', {
+        'count': docs.docs.length,
+        'timestamp': DateTime.now().toIso8601String(),
+      });
+
+      await analytics.logEvent(
+    name: 'lesson_view',
+    parameters: {
+      'count': docs.docs.length,
+      'timestamp': DateTime.now().toIso8601String(),
+    },
+  );
+
+      return docs.docs;
+    } catch (e) {
+      // Log error
+      await _logEvent('error_occurred', {
+        'error_type': 'fetch_error',
+        'error_message': e.toString(),
+        'timestamp': DateTime.now().toIso8601String(),
+      });
+      rethrow;
+    }
+  }
+
+  void _handleSearch(String query) async {
+    if (query.isNotEmpty) {
+      await _logEvent('search_performed', {
+        'query': query,
+        'timestamp': DateTime.now().toIso8601String(),
+      });
+    }
+  }
+
+  void _handleFilterChange(String filterName, List<String> selectedValues) async {
+    await _logEvent('filter_applied', {
+      'filter_name': filterName,
+      'selected_values': selectedValues.join(','),
+      'timestamp': DateTime.now().toIso8601String(),
+    });
+  }
+
+  Future<void> _handleLessonApproval() async {
+    await _logEvent('lesson_approved', {
+      'timestamp': DateTime.now().toIso8601String(),
+    });
+  }
 
   String getFiltersAsString() {
     bool noneSelected = true;
@@ -209,25 +199,21 @@ class _DisplayPageState extends State<DisplayPage> with SingleTickerProviderStat
   }
 
   @override
-  void initState() {
-    super.initState();
-    RefreshNotifier().addListener(this);
-
-    _animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 260),
-    );
-
-    final curvedAnimation = CurvedAnimation(curve: Curves.easeInOut, parent: _animationController);
-    _animation = Tween<double>(begin: 0, end: 1).animate(curvedAnimation);
-  }
-
-  @override
   void refreshPage(){
+    // Log refresh event
+    analytics.logEvent(
+      name: 'page_refresh',
+      parameters: {
+        'page': 'display',
+        'timestamp': DateTime.now().toIso8601String(),
+      },
+    );
+    if (Config.logAnalyticsEvents) {
+      print('Analytics Event: page_refresh');
+    }
+    
     print("refreshing display page");
-    setState(() {
-
-    });
+    setState(() {});
   }
 
   @override
@@ -278,11 +264,7 @@ class _DisplayPageState extends State<DisplayPage> with SingleTickerProviderStat
                               hintText: "Search for specific keywords"
                           ),
                             controller: searchBar,
-                            onChanged: (String value) {
-                            setState(() {
-
-                            });
-                            },
+                            onChanged: _handleSearch,
                           ),
                         ),
                       ),
@@ -299,8 +281,10 @@ class _DisplayPageState extends State<DisplayPage> with SingleTickerProviderStat
                               hint: "Select Course Level",
                               onChanged: (selected) {
                                 filterSelections["Course Level"] = selected;
+                                _handleFilterChange("Course Level", selected);
                                 setState(() {});
                               },
+
                             ),
                           )),
                           Expanded(
@@ -313,8 +297,10 @@ class _DisplayPageState extends State<DisplayPage> with SingleTickerProviderStat
                               hint: "Select CS Topics",
                               onChanged: (selected) {
                                 filterSelections["CS Topics"] = selected;
+                                _handleFilterChange("CS Topics", selected);
                                 setState(() {});
                               },
+
                             ),
                           )),
                           Expanded(
@@ -328,8 +314,11 @@ class _DisplayPageState extends State<DisplayPage> with SingleTickerProviderStat
                               onChanged: (selected) {
                                 filterSelections["Learning Objectives"] =
                                     selected;
+                                _handleFilterChange(
+                                    "Learning Objectives", selected);
                                 setState(() {});
                               },
+
                             ),
                           )),
                           Expanded(
@@ -343,8 +332,11 @@ class _DisplayPageState extends State<DisplayPage> with SingleTickerProviderStat
                               onChanged: (selected) {
                                 filterSelections["Domain/Societal Factor"] =
                                     selected;
+                                _handleFilterChange(
+                                    "Domain/Societal Factor", selected);
                                 setState(() {});
                               },
+
                             ),
                           )),
                           Expanded(
@@ -356,10 +348,11 @@ class _DisplayPageState extends State<DisplayPage> with SingleTickerProviderStat
                                   filterSelections["Campus"] ?? [],
                               hint: "Select Campus",
                               onChanged: (selected) {
-                                filterSelections["Campus"] =
-                                    selected;
+                                filterSelections["Campus"] = selected;
+                                _handleFilterChange("Campus", selected);
                                 setState(() {});
                               },
+
                             ),
                           )),
                         ],
@@ -441,20 +434,19 @@ class _DisplayPageState extends State<DisplayPage> with SingleTickerProviderStat
             // Menu items
             items: <Bubble>[
 
-              // Floating action menu item
-              Bubble(
-              title:"Refresh Data",
+Bubble(
+                title: "Approve Material",
                 iconColor: Colors.white,
                 bubbleColor: Theme.of(context).primaryColor,
-              icon:Icons.refresh,
-              titleStyle:const TextStyle(fontSize: 16 , color: Colors.white),
+                icon: Icons.people,
+                titleStyle: const TextStyle(fontSize: 16, color: Colors.white),
                 onPress: () {
-                setState(() {
-                });
-
+                  _handleLessonApproval();
+                  createPasswordEntryModal(context, TextEditingController());
                   _animationController.reverse();
                 },
               ),
+
               Bubble(
                 title: "Submit Material",
                 iconColor: Colors.white,
@@ -492,5 +484,11 @@ class _DisplayPageState extends State<DisplayPage> with SingleTickerProviderStat
         )
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
   }
 }

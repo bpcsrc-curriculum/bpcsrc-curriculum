@@ -49,7 +49,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '852943148953',
     projectId: 'src-management-c08fe',
     authDomain: 'src-management-c08fe.firebaseapp.com',
-    storageBucket: 'src-management-c08fe.appspot.com',
+    storageBucket: 'src-management-c08fe.firebasestorage.app',
+    measurementId: "G-46J1PZ1JH9"
   );
 
   static const FirebaseOptions android = FirebaseOptions(
