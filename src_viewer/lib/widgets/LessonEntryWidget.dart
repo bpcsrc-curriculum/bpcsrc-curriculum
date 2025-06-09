@@ -223,10 +223,13 @@ class LessonEntryWidget extends StatelessWidget {
                                 ),
                               ),
                               const SizedBox(width: 6),
-                              Icon(
-                                Icons.rate_review_outlined,
-                                size: 20,
-                                color: Theme.of(context).primaryColor,
+                              Text(
+                                "Review${reviewCount == 1 ? '' : 's'}",
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color: Theme.of(context).primaryColor,
+                                ),
                               ),
                             ],
                           ),
