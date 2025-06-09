@@ -187,38 +187,52 @@ class LessonEntryWidget extends StatelessWidget {
                   if (reviewCount == 0) {
                     reviewCount = 3; // Show test reviews count
                   }
-                  return Stack(
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.rate_review_outlined, size: 28),
-                        iconSize: 28,
-                        onPressed: () {
+                  return MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    child: Tooltip(
+                      message:
+                          '$reviewCount Review${reviewCount == 1 ? '' : 's'} - Click to view details',
+                      child: InkWell(
+                        onTap: () {
                           createReviewModal(entry, context);
                         },
-                        tooltip:
-                            '$reviewCount Review${reviewCount == 1 ? '' : 's'}',
-                      ),
-                      if (reviewCount > 0)
-                        Positioned(
-                          right: 0,
-                          top: 0,
-                          child: Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).primaryColor,
-                              shape: BoxShape.circle,
-                            ),
-                            child: Text(
-                              reviewCount.toString(),
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                              ),
+                        borderRadius: BorderRadius.circular(16),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color:
+                                Theme.of(context).primaryColor.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: Theme.of(context)
+                                  .primaryColor
+                                  .withOpacity(0.3),
                             ),
                           ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                reviewCount.toString(),
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: Theme.of(context).primaryColor,
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              Icon(
+                                Icons.rate_review_outlined,
+                                size: 20,
+                                color: Theme.of(context).primaryColor,
+                              ),
+                            ],
+                          ),
                         ),
-                    ],
+                      ),
+                    ),
                   );
                 },
               ),
