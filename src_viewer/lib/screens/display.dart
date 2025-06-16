@@ -20,6 +20,7 @@ class StringMultiSelectDropDown extends StatelessWidget {
   final List<String> initialSelected;
   final void Function(List<String>) onChanged;
   final String hint;
+  final Map<String, String>? displayNameMap;
 
   const StringMultiSelectDropDown({
     Key? key,
@@ -27,15 +28,36 @@ class StringMultiSelectDropDown extends StatelessWidget {
     required this.initialSelected,
     required this.onChanged,
     this.hint = "Select options",
+    this.displayNameMap,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    List<String> displayInitialSelected = initialSelected;
+    if (displayNameMap != null) {
+      displayInitialSelected = initialSelected.map((value) => 
+        displayNameMap![value] ?? value
+      ).toList();
+    }
+
     return CustomDropdown<String>.multiSelect(
       items: options,
-      initialItems: initialSelected,
+      initialItems: displayInitialSelected,
       hintText: hint,
-      onListChanged: onChanged,
+      onListChanged: (List<String> selectedDisplayNames) {
+        if (displayNameMap != null) {
+          List<String> filterValues = selectedDisplayNames.map((displayName) {
+            String? filterValue = displayNameMap!.entries
+                .firstWhere((entry) => entry.value == displayName,
+                    orElse: () => MapEntry(displayName, displayName))
+                .key;
+            return filterValue;
+          }).toList();
+          onChanged(filterValues);
+        } else {
+          onChanged(selectedDisplayNames);
+        }
+      },
       maxlines: 3,
     );
   }
@@ -298,6 +320,7 @@ class _DisplayPageState extends State<DisplayPage> with SingleTickerProviderStat
                               initialSelected:
                                   filterSelections["Course Level"] ?? [],
                               hint: "Select Course Level",
+                              displayNameMap: courseLevelDisplayNames,
                               onChanged: (selected) {
                                 filterSelections["Course Level"] = selected;
                                 setState(() {});
@@ -445,14 +468,8 @@ class _DisplayPageState extends State<DisplayPage> with SingleTickerProviderStat
                                 children: [
                                   Row(
                                     children: [
-                                      const Icon(
-                                        Icons.star_rounded,
-                                        color: Colors.white,
-                                        size: 28,
-                                      ),
-                                      const SizedBox(width: 8),
                                       Text(
-                                        '${filteredSubmissions.length} results',
+                                        '${filteredSubmissions.length} result${filteredSubmissions.length == 1 ? '' : 's'}',
                                         style: const TextStyle(
                                           color: Colors.white,
                                           fontSize: 20,

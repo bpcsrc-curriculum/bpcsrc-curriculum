@@ -184,9 +184,6 @@ class LessonEntryWidget extends StatelessWidget {
                           .length;
                     }
                   }
-                  if (reviewCount == 0) {
-                    reviewCount = 3; // Show test reviews count
-                  }
                   return MouseRegion(
                     cursor: SystemMouseCursors.click,
                     child: Tooltip(
@@ -197,57 +194,44 @@ class LessonEntryWidget extends StatelessWidget {
                           createReviewModal(entry, context);
                         },
                         borderRadius: BorderRadius.circular(16),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  Icons.feedback,
-                                  size: 24,
-                                  color: Theme.of(context).primaryColor,
-                                ),
-                                const SizedBox(width: 6),
-                                Text(
-                                  "24",
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                    color: Theme.of(context).primaryColor,
-                                  ),
-                                ),
-                              ],
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).primaryColor.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: Theme.of(context).primaryColor.withOpacity(0.3),
+                              width: 1,
                             ),
-                            const SizedBox(height: 2),
-                            AnimatedDefaultTextStyle(
-                              duration: const Duration(milliseconds: 200),
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                IconData(0xf2ea, fontFamily: 'MaterialIcons'),
+                                size: 20,
                                 color: Theme.of(context).primaryColor,
                               ),
-                              child: MouseRegion(
-                                cursor: SystemMouseCursors.click,
-                                child: StatefulBuilder(
-                                  builder: (context, setState) {
-                                    return MouseRegion(
-                                      onEnter: (_) => setState(() {}),
-                                      onExit: (_) => setState(() {}),
-                                      child: Text(
-                                        "Reviews",
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w500,
-                                          color: Theme.of(context).primaryColor.withOpacity(0.8),
-                                        ),
-                                      ),
-                                    );
-                                  },
+                              const SizedBox(width: 6),
+                              Text(
+                                "$reviewCount",
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: Theme.of(context).primaryColor,
                                 ),
                               ),
-                            ),
-                          ],
+                              const SizedBox(width: 4),
+                              Text(
+                                "Reviews",
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color: Theme.of(context).primaryColor,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),

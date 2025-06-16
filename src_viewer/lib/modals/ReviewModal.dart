@@ -159,8 +159,12 @@ class ReviewModal extends StatelessWidget {
                         as Map<String, dynamic>)['Reviews'] as List<dynamic>?;
 
                     if (reviews == null || reviews.isEmpty) {
-                      return displayReviewsTable(
-                          context, Review.getTestReviews());
+                      return const Center(
+                        child: Text(
+                          "No reviews available yet. Be the first to review this activity!",
+                          style: TextStyle(fontSize: 16),
+                        ),
+                      );
                     }
 
                     // Filter reviews to only show approved ones
@@ -171,8 +175,12 @@ class ReviewModal extends StatelessWidget {
                         .toList();
 
                     if (approvedReviews.isEmpty) {
-                      return displayReviewsTable(
-                          context, Review.getTestReviews());
+                      return const Center(
+                        child: Text(
+                          "No approved reviews available yet. Be the first to review this activity!",
+                          style: TextStyle(fontSize: 16),
+                        ),
+                      );
                     }
 
                     return SingleChildScrollView(
