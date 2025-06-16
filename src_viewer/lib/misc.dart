@@ -158,11 +158,18 @@ List<String> fieldsToUseAsFilters = [
   "Learning Objectives"
 ];
 
+// Map for course level display names
+Map<String, String> courseLevelDisplayNames = {
+  "CS0": "CS0 - Introduction to Computing",
+  "CS1": "CS1 - Introduction to Programming",
+  "CS2": "CS2 - Advanced Programming Computing"
+};
+
 List<String> courseLevelOptions = [
   "All",
-  "CS0 - Introduction of Computing",
+  "CS0 - Introduction to Computing",
   "CS1 - Introduction to Programming",
-  "CS2 - Advanced Programming computing"
+  "CS2 - Advanced Programming Computing"
 ];
 
 List<String> csTopicOptions = [

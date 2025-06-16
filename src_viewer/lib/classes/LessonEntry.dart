@@ -55,7 +55,7 @@ class LessonEntry {
   }
 
   bool queryField(String query, String field) {
-    // Assuming getSubmissionField(field).value returns a string.
+    // Use contains matching for all fields
     return getSubmissionField(field)
         .value
         .toLowerCase()

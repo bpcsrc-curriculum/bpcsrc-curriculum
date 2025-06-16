@@ -33,44 +33,4 @@ class Review {
       Approved: map['Approved'] ?? '',
     );
   }
-
-  static List<Review> getTestReviews() {
-    return [
-      Review(
-        reviewerEmail: "prof.smith@csula.edu",
-        timestamp: DateTime.now().millisecondsSinceEpoch.toString(),
-        contributorCampus: "California State University, Los Angeles",
-        review:
-            "This is an excellent assignment that effectively teaches students about social responsibility in computing. The real-world examples and hands-on activities make the concepts very engaging.",
-        reviewerRole: "Professor",
-        reviewerName: "Dr. Smith",
-        courseCodeAndTitle: "CS101 - Introduction to Programming",
-        Approved: "APPROVED",
-      ),
-      Review(
-        reviewerEmail: "ta.johnson@csula.edu",
-        timestamp: (DateTime.now().millisecondsSinceEpoch - 86400000)
-            .toString(), // 1 day ago
-        contributorCampus: "California State University, Los Angeles",
-        review:
-            "I've used this assignment in my lab sections and students really enjoyed the practical approach. The discussion questions sparked great conversations about ethics in technology.",
-        reviewerRole: "Teaching Assistant",
-        reviewerName: "Sarah Johnson",
-        courseCodeAndTitle: "CS101 - Introduction to Programming",
-        Approved: "APPROVED",
-      ),
-      Review(
-        reviewerEmail: "student.wilson@csula.edu",
-        timestamp: (DateTime.now().millisecondsSinceEpoch - 172800000)
-            .toString(), // 2 days ago
-        contributorCampus: "California State University, Los Angeles",
-        review:
-            "As a student, I found this assignment really eye-opening. It helped me understand how technology can impact different communities and the importance of considering diverse perspectives.",
-        reviewerRole: "Student",
-        reviewerName: "Michael Wilson",
-        courseCodeAndTitle: "CS101 - Introduction to Programming",
-        Approved: "APPROVED",
-      ),
-    ];
-  }
 }

@@ -28,6 +28,7 @@ class StringMultiSelectDropDown extends StatelessWidget {
   final List<String> initialSelected;
   final void Function(List<String>) onChanged;
   final String hint;
+  final Map<String, String>? displayNameMap;
 
   const StringMultiSelectDropDown({
     Key? key,
@@ -35,15 +36,36 @@ class StringMultiSelectDropDown extends StatelessWidget {
     required this.initialSelected,
     required this.onChanged,
     this.hint = "Select options",
+    this.displayNameMap,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    List<String> displayInitialSelected = initialSelected;
+    if (displayNameMap != null) {
+      displayInitialSelected = initialSelected.map((value) => 
+        displayNameMap![value] ?? value
+      ).toList();
+    }
+
     return CustomDropdown<String>.multiSelect(
       items: options,
-      initialItems: initialSelected,
+      initialItems: displayInitialSelected,
       hintText: hint,
-      onListChanged: onChanged,
+      onListChanged: (List<String> selectedDisplayNames) {
+        if (displayNameMap != null) {
+          List<String> filterValues = selectedDisplayNames.map((displayName) {
+            String? filterValue = displayNameMap!.entries
+                .firstWhere((entry) => entry.value == displayName,
+                    orElse: () => MapEntry(displayName, displayName))
+                .key;
+            return filterValue;
+          }).toList();
+          onChanged(filterValues);
+        } else {
+          onChanged(selectedDisplayNames);
+        }
+      },
       maxlines: 3,
     );
   }
@@ -62,6 +84,7 @@ class _DisplayPageState extends State<DisplayPage> with SingleTickerProviderStat
   var _animation;
   var _animationController;
   final db = FirebaseFirestore.instance;
+  String sortOption = 'newest'; // 'newest', 'mostReviews'
 
   @override
   void initState() {
@@ -279,6 +302,7 @@ class _DisplayPageState extends State<DisplayPage> with SingleTickerProviderStat
                               initialSelected:
                                   filterSelections["Course Level"] ?? [],
                               hint: "Select Course Level",
+                              displayNameMap: courseLevelDisplayNames,
                               onChanged: (selected) {
                                 filterSelections["Course Level"] = selected;
                                 _handleFilterChange("Course Level", selected);
@@ -385,38 +409,128 @@ class _DisplayPageState extends State<DisplayPage> with SingleTickerProviderStat
                           .where((entry) => entry.queryAll(searchBar.text) && entry.queryFieldMap(filterSelections))
                           .toList();
 
-                      // Now build the UI after
-                      return ListView.builder(
-                        itemCount: filteredSubmissions.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          currentDelay += delayMilliSeconds;
-                          return Padding(
-                            padding: const EdgeInsets.only(top: 15, left: 15, right: 15),
-                            child: LessonEntryWidget(entry: filteredSubmissions[index]),
-                          );
-                        },
-                      );
-                      /*
-                      return ListView.builder( // Once posts are retrieved, generates ListView
-                          itemCount: submissions.length,
-                          itemBuilder: (BuildContext context, int index) {
-                          LessonEntry entry = LessonEntry.fromMap(submissions[index].data());
+                      // Sort logic
+                      filteredSubmissions.sort((a, b) {
+                        int aReviews = 0;
+                        int bReviews = 0;
+                        if (a.fields.containsKey('Reviews') && a.fields['Reviews']!.value is List) {
+                          aReviews = (a.fields['Reviews']!.value as List).length;
+                        } else if (a.fields.containsKey('Reviews')) {
+                          try {
+                            aReviews = (a.fields['Reviews']!.value as List<dynamic>).length;
+                          } catch (_) {
+                            aReviews = 0;
+                          }
+                        }
+                        if (b.fields.containsKey('Reviews') && b.fields['Reviews']!.value is List) {
+                          bReviews = (b.fields['Reviews']!.value as List).length;
+                        } else if (b.fields.containsKey('Reviews')) {
+                          try {
+                            bReviews = (b.fields['Reviews']!.value as List<dynamic>).length;
+                          } catch (_) {
+                            bReviews = 0;
+                          }
+                        }
+                        int aDate = 0;
+                        int bDate = 0;
+                        if (a.fields.containsKey('Upload Date')) {
+                          aDate = int.tryParse(a.fields['Upload Date']!.value) ?? 0;
+                        }
+                        if (b.fields.containsKey('Upload Date')) {
+                          bDate = int.tryParse(b.fields['Upload Date']!.value) ?? 0;
+                        }
+                        switch (sortOption) {
+                          case 'newest':
+                            return bDate.compareTo(aDate);
+                          case 'mostReviews':
+                            return bReviews.compareTo(aReviews);
+                          default:
+                            return bDate.compareTo(aDate);
+                        }
+                      });
 
-                            //can we perform an actual filter?
-                          bool searchBarMatch = entry.queryAll(searchBar.text);
-                          bool filterMatch = entry.queryFieldMap(filterSelections);
-                            if (!searchBarMatch || !filterMatch) {
-                              return const SizedBox.shrink();
-                          }
-                          else {
-                            currentDelay+=delayMilliSeconds;
-                              return Padding(
-                              padding: const EdgeInsets.only(top: 15, left: 15, right: 15),
-                              child: LessonEntryWidget(entry: entry),
-                            );
-                          }
-                        },
-                      );*/
+                      // Now build the UI after
+                      return Column(
+                        children: [
+                          Container(
+                            color: Theme.of(context).primaryColor,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Text(
+                                        '${filteredSubmissions.length} result${filteredSubmissions.length == 1 ? '' : 's'}',
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  DropdownButton<String>(
+                                    value: sortOption,
+                                    underline: const SizedBox(),
+                                    icon: const Icon(Icons.arrow_drop_down, color: Colors.white, size: 32),
+                                    dropdownColor: Theme.of(context).primaryColor,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                    items: const [
+                                      DropdownMenuItem(
+                                        value: 'newest',
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Icon(Icons.calendar_today, size: 24, color: Colors.white),
+                                            SizedBox(width: 12),
+                                            Text('Newest to Oldest'),
+                                          ],
+                                        ),
+                                      ),
+                                      DropdownMenuItem(
+                                        value: 'mostReviews',
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Icon(Icons.star, size: 24, color: Colors.white),
+                                            SizedBox(width: 12),
+                                            Text('Most Reviewed'),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                    onChanged: (String? newValue) {
+                                      if (newValue != null) {
+                                        setState(() {
+                                          sortOption = newValue;
+                                        });
+                                      }
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: ListView.builder(
+                              itemCount: filteredSubmissions.length,
+                              itemBuilder: (BuildContext context, int index) {
+                                currentDelay += delayMilliSeconds;
+                                return Padding(
+                                  padding: const EdgeInsets.only(top: 15, left: 15, right: 15),
+                                  child: LessonEntryWidget(entry: filteredSubmissions[index]),
+                                );
+                              },
+                            ),
+                          ),
+                        ],
+                      );
                     } else { // Problem loading data
                         return const Text("Error loading data");
                       }
