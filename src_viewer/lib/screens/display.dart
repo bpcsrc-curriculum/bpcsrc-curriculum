@@ -260,7 +260,7 @@ class _DisplayPageState extends State<DisplayPage> with SingleTickerProviderStat
 
   @override
   Widget build(BuildContext context) {
-    int delayMilliSeconds = 75;
+    int delayMilliSeconds = 25;
     int currentDelay = 0;
 
     return WillPopScope(
