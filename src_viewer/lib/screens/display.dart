@@ -3,6 +3,7 @@ import 'package:floating_action_bubble/floating_action_bubble.dart';
 import 'package:flutter/material.dart';
 import 'dart:html' as html;
 import 'package:src_viewer/classes/LessonEntry.dart';
+import 'package:src_viewer/classes/Review.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:src_viewer/widgets/LessonEntryWidget.dart';
 import 'package:src_viewer/misc.dart';
@@ -600,19 +601,39 @@ class _DisplayPageState extends State<DisplayPage> with SingleTickerProviderStat
                         int aReviews = 0;
                         int bReviews = 0;
                         if (a.fields.containsKey('Reviews') && a.fields['Reviews']!.value is List) {
-                          aReviews = (a.fields['Reviews']!.value as List).length;
+                          var reviews = a.fields['Reviews']!.value as List;
+                          // Count only approved reviews
+                          aReviews = reviews
+                              .map((reviewMap) => Review.fromMap(reviewMap))
+                              .where((review) => review.Approved.toUpperCase() == "APPROVED")
+                              .length;
                         } else if (a.fields.containsKey('Reviews')) {
                           try {
-                            aReviews = (a.fields['Reviews']!.value as List<dynamic>).length;
+                            var reviews = a.fields['Reviews']!.value as List<dynamic>;
+                            // Count only approved reviews
+                            aReviews = reviews
+                                .map((reviewMap) => Review.fromMap(reviewMap))
+                                .where((review) => review.Approved.toUpperCase() == "APPROVED")
+                                .length;
                           } catch (_) {
                             aReviews = 0;
                           }
                         }
                         if (b.fields.containsKey('Reviews') && b.fields['Reviews']!.value is List) {
-                          bReviews = (b.fields['Reviews']!.value as List).length;
+                          var reviews = b.fields['Reviews']!.value as List;
+                          // Count only approved reviews
+                          bReviews = reviews
+                              .map((reviewMap) => Review.fromMap(reviewMap))
+                              .where((review) => review.Approved.toUpperCase() == "APPROVED")
+                              .length;
                         } else if (b.fields.containsKey('Reviews')) {
                           try {
-                            bReviews = (b.fields['Reviews']!.value as List<dynamic>).length;
+                            var reviews = b.fields['Reviews']!.value as List<dynamic>;
+                            // Count only approved reviews
+                            bReviews = reviews
+                                .map((reviewMap) => Review.fromMap(reviewMap))
+                                .where((review) => review.Approved.toUpperCase() == "APPROVED")
+                                .length;
                           } catch (_) {
                             bReviews = 0;
                           }
