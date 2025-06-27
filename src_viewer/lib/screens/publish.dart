@@ -199,7 +199,7 @@ class _PublishingPageState extends State<PublishingPage> implements IRefresh{
   @override
   Widget build(BuildContext context) {
     String dropdownValue = fieldsToUseAsFilters.first;
-    int delayMilliSeconds = 75;
+    int delayMilliSeconds =25;
     int currentDelay = 0;
 
     return WillPopScope(

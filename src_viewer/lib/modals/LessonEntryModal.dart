@@ -17,7 +17,7 @@ class LessonEntryModal extends StatelessWidget {
 
   Widget displayTabularFields(BuildContext context) {
     List<DataRow> rows = [];
-    int delayMilliSeconds = 75;
+    int delayMilliSeconds =25;
     int currentDelay = 0;
     for (String label in info) {
       SubmissionField sF = entry.getSubmissionField(label);

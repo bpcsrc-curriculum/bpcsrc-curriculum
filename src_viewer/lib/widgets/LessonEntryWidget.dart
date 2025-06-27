@@ -47,7 +47,7 @@ class LessonEntryWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    int delayMilliSeconds = 200;
+    int delayMilliSeconds = 50;
 
     return InkWell(
       onTap: () {
