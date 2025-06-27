@@ -208,7 +208,7 @@ class LessonEntryWidget extends StatelessWidget {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Icon(
-                                IconData(0xf2ea, fontFamily: 'MaterialIcons'),
+                                const IconData(0xf2ea, fontFamily: 'MaterialIcons'),
                                 size: 20,
                                 color: Theme.of(context).primaryColor,
                               ),
