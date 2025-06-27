@@ -8,14 +8,14 @@ import 'package:src_viewer/widgets/LessonEntryWidget.dart';
 import 'package:src_viewer/misc.dart';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
 
-import 'package:animated_custom_dropdown/custom_dropdown.dart';
 import 'dart:developer';
 
 import '../classes/IRefresh.dart';
 import '../classes/RefreshNotifier.dart';
 import '../modals/PasswordEntryModal.dart';
 
-class StringMultiSelectDropDown extends StatelessWidget {
+/// A robust, reusable multi-select dropdown with overlay, fade animation, and 'Select All' support.
+class StringMultiSelectDropDown extends StatefulWidget {
   final List<String> options;
   final List<String> initialSelected;
   final void Function(List<String>) onChanged;
@@ -32,33 +32,206 @@ class StringMultiSelectDropDown extends StatelessWidget {
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    List<String> displayInitialSelected = initialSelected;
-    if (displayNameMap != null) {
-      displayInitialSelected = initialSelected.map((value) => 
-        displayNameMap![value] ?? value
-      ).toList();
-    }
+  State<StringMultiSelectDropDown> createState() => _StringMultiSelectDropDownState();
+}
 
-    return CustomDropdown<String>.multiSelect(
-      items: options,
-      initialItems: displayInitialSelected,
-      hintText: hint,
-      onListChanged: (List<String> selectedDisplayNames) {
-        if (displayNameMap != null) {
-          List<String> filterValues = selectedDisplayNames.map((displayName) {
-            String? filterValue = displayNameMap!.entries
-                .firstWhere((entry) => entry.value == displayName,
-                    orElse: () => MapEntry(displayName, displayName))
-                .key;
-            return filterValue;
-          }).toList();
-          onChanged(filterValues);
-        } else {
-          onChanged(selectedDisplayNames);
-        }
-      },
-      maxlines: 3,
+class _StringMultiSelectDropDownState extends State<StringMultiSelectDropDown> with SingleTickerProviderStateMixin {
+  List<String> selectedItems = [];
+  OverlayEntry? _overlayEntry;
+  final LayerLink _layerLink = LayerLink();
+  bool isExpanded = false;
+  late AnimationController _fadeController;
+  late Animation<double> _fadeAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    selectedItems = List.from(widget.initialSelected);
+    _fadeController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 180),
+    );
+    _fadeAnimation = CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut);
+  }
+
+  @override
+  void dispose() {
+    _fadeController.dispose();
+    _removeOverlay();
+    super.dispose();
+  }
+
+  void _openDropdown() {
+    _overlayEntry = _createOverlayEntry();
+    Overlay.of(context).insert(_overlayEntry!);
+    _fadeController.forward(from: 0);
+    setState(() => isExpanded = true);
+  }
+
+  Future<void> _closeDropdown() async {
+    await _fadeController.reverse();
+    _removeOverlay();
+    setState(() => isExpanded = false);
+  }
+
+  void _removeOverlay() {
+    _overlayEntry?.remove();
+    _overlayEntry = null;
+  }
+
+  OverlayEntry _createOverlayEntry() {
+    RenderBox renderBox = context.findRenderObject() as RenderBox;
+    var size = renderBox.size;
+    var offset = renderBox.localToGlobal(Offset.zero);
+
+    // Only add 'All' if not present in options
+    List<String> allOptions = widget.options.contains("All")
+        ? List.from(widget.options)
+        : ["All", ...widget.options];
+
+    return OverlayEntry(
+      builder: (context) => GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: _closeDropdown,
+        child: Stack(
+          children: [
+            Positioned(
+              left: offset.dx,
+              top: offset.dy + size.height,
+              width: size.width,
+              child: CompositedTransformFollower(
+                link: _layerLink,
+                showWhenUnlinked: false,
+                offset: Offset(0, size.height),
+                child: FadeTransition(
+                  opacity: _fadeAnimation,
+                  child: Material(
+                    elevation: 4,
+                    borderRadius: BorderRadius.circular(8),
+                    child: Container(
+                      constraints: const BoxConstraints(maxHeight: 200),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.grey.shade300),
+                      ),
+                      child: SingleChildScrollView(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: allOptions.map((option) {
+                            bool isAll = option == "All";
+                            bool isSelected = isAll
+                                ? selectedItems.length == widget.options.length
+                                : selectedItems.contains(option);
+                            return InkWell(
+                              onTap: () {
+                                // Remove and rebuild overlay for visual update
+                                _removeOverlay();
+                                setState(() {
+                                  if (isAll) {
+                                    if (selectedItems.length == widget.options.length) {
+                                      selectedItems.clear();
+                                    } else {
+                                      selectedItems = List.from(widget.options);
+                                    }
+                                  } else {
+                                    if (isSelected) {
+                                      selectedItems.remove(option);
+                                    } else {
+                                      selectedItems.add(option);
+                                    }
+                                  }
+                                });
+                                widget.onChanged(List.from(selectedItems));
+                                // Rebuild overlay to update checkboxes/colors
+                                _overlayEntry = _createOverlayEntry();
+                                Overlay.of(context).insert(_overlayEntry!);
+                              },
+                              child: Container(
+                                height: 40,
+                                padding: const EdgeInsets.symmetric(horizontal: 12),
+                                decoration: BoxDecoration(
+                                  color: isSelected ? Theme.of(context).primaryColor.withOpacity(0.15) : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      isSelected ? Icons.check_box : Icons.check_box_outline_blank,
+                                      size: 22,
+                                      color: isSelected ? Theme.of(context).primaryColor : Colors.grey,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        option,
+                                        style: TextStyle(
+                                          color: isSelected ? Theme.of(context).primaryColor : Colors.black,
+                                          fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return CompositedTransformTarget(
+      link: _layerLink,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: Colors.grey.shade300),
+        ),
+        child: InkWell(
+          onTap: () {
+            if (isExpanded) {
+              _closeDropdown();
+            } else {
+              _openDropdown();
+            }
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Text(
+                    selectedItems.isEmpty ? widget.hint : selectedItems.join(', '),
+                    style: TextStyle(
+                      color: selectedItems.isEmpty ? Colors.grey : Colors.black,
+                      fontSize: 14,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                Icon(
+                  isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                  color: Colors.grey,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -259,6 +432,12 @@ class _DisplayPageState extends State<DisplayPage> with SingleTickerProviderStat
   }
 
   @override
+  void dispose() {
+    _animationController?.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     int delayMilliSeconds = 75;
     int currentDelay = 0;
@@ -282,113 +461,113 @@ class _DisplayPageState extends State<DisplayPage> with SingleTickerProviderStat
             children: [
               Container(
                 color: Theme.of(context).primaryColor,
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 4.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Container(
-                          decoration: BoxDecoration(
-                              color: Colors.white,
-                            borderRadius: BorderRadius.circular(15)
-                        ),
-                          child: TextField(
-                            decoration: const InputDecoration(
-                                border: InputBorder.none,
-                                icon: Icon(Icons.search),
-                              hintText: "Search for specific keywords"
+                child: ClipRect(
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 4.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Container(
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+                              borderRadius: BorderRadius.circular(15)
                           ),
-                            controller: searchBar,
-                            onChanged: (String value) {
-                            setState(() {
-
-                            });
-                            },
+                            child: TextField(
+                              decoration: const InputDecoration(
+                                  border: InputBorder.none,
+                                  icon: Icon(Icons.search),
+                                hintText: "Search for specific keywords"
+                              ),
+                              controller: searchBar,
+                              onChanged: (String value) {
+                              setState(() {});
+                              },
+                            ),
                           ),
                         ),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          Expanded(
-                              child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: StringMultiSelectDropDown(
-                              options: courseLevelOptions,
-                              initialSelected:
-                                  filterSelections["Course Level"] ?? [],
-                              hint: "Select Course Level",
-                              displayNameMap: courseLevelDisplayNames,
-                              onChanged: (selected) {
-                                filterSelections["Course Level"] = selected;
-                                setState(() {});
-                              },
-                            ),
-                          )),
-                          Expanded(
-                              child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: StringMultiSelectDropDown(
-                              options: csTopicOptions,
-                              initialSelected:
-                                  filterSelections["CS Topics"] ?? [],
-                              hint: "Select CS Topics",
-                              onChanged: (selected) {
-                                filterSelections["CS Topics"] = selected;
-                                setState(() {});
-                              },
-                            ),
-                          )),
-                          Expanded(
-                              child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: StringMultiSelectDropDown(
-                              options: learningObjectiveOptions,
-                              initialSelected:
-                                  filterSelections["Learning Objectives"] ?? [],
-                              hint: "Select Learning Objectives",
-                              onChanged: (selected) {
-                                filterSelections["Learning Objectives"] =
-                                    selected;
-                                setState(() {});
-                              },
-                            ),
-                          )),
-                          Expanded(
-                              child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: StringMultiSelectDropDown(
-                              options: srcTopicsOptions,
-                              initialSelected:
-                                  filterSelections["Domain/Societal Factor"] ?? [],
-                              hint: "Select Domain/Societal Factor",
-                              onChanged: (selected) {
-                                filterSelections["Domain/Societal Factor"] =
-                                    selected;
-                                setState(() {});
-                              },
-                            ),
-                          )),
-                          Expanded(
-                              child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: StringMultiSelectDropDown(
-                              options: collaboratorOptions,
-                              initialSelected:
-                                  filterSelections["Campus"] ?? [],
-                              hint: "Select Campus",
-                              onChanged: (selected) {
-                                filterSelections["Campus"] =
-                                    selected;
-                                setState(() {});
-                              },
-                            ),
-                          )),
-                        ],
-                      ),
-                    ],
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            Expanded(
+                                child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: StringMultiSelectDropDown(
+                                options: courseLevelOptions,
+                                initialSelected:
+                                    filterSelections["Course Level"] ?? [],
+                                hint: "Select Course Level",
+                                displayNameMap: courseLevelDisplayNames,
+                                onChanged: (selected) {
+                                  filterSelections["Course Level"] = selected;
+                                  setState(() {});
+                                },
+                              ),
+                            )),
+                            Expanded(
+                                child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: StringMultiSelectDropDown(
+                                options: csTopicOptions,
+                                initialSelected:
+                                    filterSelections["CS Topics"] ?? [],
+                                hint: "Select CS Topics",
+                                onChanged: (selected) {
+                                  filterSelections["CS Topics"] = selected;
+                                  setState(() {});
+                                },
+                              ),
+                            )),
+                            Expanded(
+                                child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: StringMultiSelectDropDown(
+                                options: learningObjectiveOptions,
+                                initialSelected:
+                                    filterSelections["Learning Objectives"] ?? [],
+                                hint: "Select Learning Objectives",
+                                onChanged: (selected) {
+                                  filterSelections["Learning Objectives"] =
+                                      selected;
+                                  setState(() {});
+                                },
+                              ),
+                            )),
+                            Expanded(
+                                child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: StringMultiSelectDropDown(
+                                options: srcTopicsOptions,
+                                initialSelected:
+                                    filterSelections["Domain/Societal Factor"] ?? [],
+                                hint: "Select Domain/Societal Factor",
+                                onChanged: (selected) {
+                                  filterSelections["Domain/Societal Factor"] =
+                                      selected;
+                                  setState(() {});
+                                },
+                              ),
+                            )),
+                            Expanded(
+                                child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: StringMultiSelectDropDown(
+                                options: collaboratorOptions,
+                                initialSelected:
+                                    filterSelections["Campus"] ?? [],
+                                hint: "Select Campus",
+                                onChanged: (selected) {
+                                  filterSelections["Campus"] =
+                                      selected;
+                                  setState(() {});
+                                },
+                              ),
+                            )),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -546,64 +725,67 @@ class _DisplayPageState extends State<DisplayPage> with SingleTickerProviderStat
                       child: LoadingAnimationWidget.staggeredDotsWave(color: Colors.black, size: 75),
                       );
                     }
-                  },
-                ),
+                },
               ),
-            ],
-          ),
-          floatingActionButton: FloatingActionBubble(
-            // Menu items
-            items: <Bubble>[
+            ),
+          ],
+        ),
+        floatingActionButton: FloatingActionBubble(
+          // Menu items
+          items: <Bubble>[
 
-              // Floating action menu item
-              Bubble(
-              title:"Refresh Data",
-                iconColor: Colors.white,
-                bubbleColor: Theme.of(context).primaryColor,
-              icon:Icons.refresh,
-              titleStyle:const TextStyle(fontSize: 16 , color: Colors.white),
-                onPress: () {
-                setState(() {
+            // Floating action menu item
+            Bubble(
+            title:"Refresh Data",
+              iconColor: Colors.white,
+              bubbleColor: Theme.of(context).primaryColor,
+            icon:Icons.refresh,
+            titleStyle:const TextStyle(fontSize: 16 , color: Colors.white),
+              onPress: () {
+                _animationController.reverse();
+                // Use Future.microtask to defer setState until after animation
+                Future.microtask(() {
+                  if (mounted) {
+                    setState(() {});
+                  }
                 });
+              },
+            ),
+            Bubble(
+              title: "Submit Material",
+              iconColor: Colors.white,
+              bubbleColor: Theme.of(context).primaryColor,
+            icon:Icons.add,
+            titleStyle: const TextStyle(fontSize: 16 , color: Colors.white),
+              onPress: () {
+                String url = formURL;
+                html.window.open(url, "Submission Form");
 
-                  _animationController.reverse();
-                },
-              ),
-              Bubble(
-                title: "Submit Material",
-                iconColor: Colors.white,
-                bubbleColor: Theme.of(context).primaryColor,
-              icon:Icons.add,
-              titleStyle: const TextStyle(fontSize: 16 , color: Colors.white),
-                onPress: () {
-                  String url = formURL;
-                  html.window.open(url, "Submission Form");
+                _animationController.reverse();
+              },
+            ),
+            Bubble(
+            title:"Approve Material",
+              iconColor: Colors.white,
+              bubbleColor: Theme.of(context).primaryColor,
+            icon:Icons.people,
+            titleStyle:const TextStyle(fontSize: 16 , color: Colors.white),
+              onPress: () {
+                createPasswordEntryModal(context, TextEditingController());
 
-                  _animationController.reverse();
-                },
-              ),
-              Bubble(
-              title:"Approve Material",
-                iconColor: Colors.white,
-                bubbleColor: Theme.of(context).primaryColor,
-              icon:Icons.people,
-              titleStyle:const TextStyle(fontSize: 16 , color: Colors.white),
-                onPress: () {
-                  createPasswordEntryModal(context, TextEditingController());
+                _animationController.reverse();
+              },
+            ),
+          ],
 
-                  _animationController.reverse();
-                },
-              ),
-            ],
-
-            animation: _animation,
-            onPress: () => _animationController.isCompleted
-                ? _animationController.reverse()
-                : _animationController.forward(),
-            iconColor: Colors.white,
-            iconData: Icons.settings,
-            backGroundColor: Theme.of(context).primaryColor,
-        )
+          animation: _animation,
+          onPress: () => _animationController.isCompleted
+              ? _animationController.reverse()
+              : _animationController.forward(),
+          iconColor: Colors.white,
+          iconData: Icons.settings,
+          backGroundColor: Theme.of(context).primaryColor,
+        ),
       ),
     );
   }
